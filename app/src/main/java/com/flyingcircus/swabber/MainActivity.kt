@@ -12,4 +12,8 @@ class MainActivity : AppCompatActivity() {
 //    Hello Kobi
     // Hi there
     // Bye
+
+    fun printWorld() {
+        println("World")
+    }
 }
