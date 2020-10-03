@@ -11,4 +11,5 @@ class MainActivity : AppCompatActivity() {
     // Check
 //    Hello Kobi
     // Hi there
+    // Bye
 }
