@@ -13,5 +13,4 @@ class MainActivity : AppCompatActivity() {
     // Hi there
     // Bye
     fun printHello() { println("Hello") }
-
 }
