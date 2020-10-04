@@ -61,15 +61,14 @@ class MainActivity : AppCompatActivity() {
 
         // if number of neighbors is zero, expose all the neighbors too
         if (gameBoard[row][col].cantactNumber == 0) {
-            // TODO: add boundary conditions
-            exposeTile(row + 1, col + 1)
-            exposeTile(row + 1, col)
-            exposeTile(row + 1, col - 1)
-            exposeTile(row, col + 1)
-            exposeTile(row, col - 1)
-            exposeTile(row - 1, col + 1)
-            exposeTile(row - 1, col)
-            exposeTile(row - 1, col - 1)
+            if (row + 1 < boardHight && col + 1 < boardWidth) exposeTile(row + 1, col + 1)
+            if (row + 1 < boardHight) exposeTile(row + 1, col)
+            if (row + 1 < boardHight && col - 1 >= 0) exposeTile(row + 1, col - 1)
+            if (col + 1 < boardWidth) exposeTile(row, col + 1)
+            if (col - 1 >= 0) exposeTile(row, col - 1)
+            if (row - 1 >= 0 && col + 1 < boardWidth) exposeTile(row - 1, col + 1)
+            if (row - 1 >= 0) exposeTile(row - 1, col)
+            if (row - 1 >= 0 && col - 1 >= 0) exposeTile(row - 1, col - 1)
         }
 
         // update the display of the tile
@@ -80,15 +79,16 @@ class MainActivity : AppCompatActivity() {
     }
 
     private fun countNeighbors(row: Int, col: Int): Int {
-        // TODO: add boundary conditions
-        return (gameBoard[row + 1][col + 1].isSick.toInt() +
-                gameBoard[row + 1][col].isSick.toInt() +
-                gameBoard[row + 1][col - 1].isSick.toInt() +
-                gameBoard[row][col + 1].isSick.toInt() +
-                gameBoard[row][col - 1].isSick.toInt() +
-                gameBoard[row - 1][col + 1].isSick.toInt() +
-                gameBoard[row - 1][col].isSick.toInt() +
-                gameBoard[row - 1][col - 1].isSick.toInt())
+        var contactNumber = 0
+        if (row + 1 < boardHight && col + 1 < boardWidth) contactNumber += gameBoard[row + 1][col + 1].isSick.toInt()
+        if (row + 1 < boardHight) contactNumber += gameBoard[row + 1][col].isSick.toInt()
+        if (row + 1 < boardHight && col - 1 >= 0) contactNumber += gameBoard[row + 1][col - 1].isSick.toInt()
+        if (col + 1 < boardWidth) contactNumber += gameBoard[row][col + 1].isSick.toInt()
+        if (col - 1 >= 0) contactNumber += gameBoard[row][col - 1].isSick.toInt()
+        if (row - 1 >= 0 && col + 1 < boardWidth) contactNumber += gameBoard[row - 1][col + 1].isSick.toInt()
+        if (row - 1 >= 0) contactNumber += gameBoard[row - 1][col].isSick.toInt()
+        if (row - 1 >= 0 && col - 1 >= 0) contactNumber += gameBoard[row - 1][col - 1].isSick.toInt()
+        return contactNumber
     }
 
     fun holdTile(row: Int, col: Int) {
@@ -97,11 +97,13 @@ class MainActivity : AppCompatActivity() {
                 true -> {  // if already has mask, remove it and increment mask counter
                     gameBoard[row][col].hasMask = false
                     masksNum++
+                    unknownCounter++
                 }
                 false -> {  // if not, put on a mask if masks are available or show error
                     if (masksNum > 0) {
                         gameBoard[row][col].hasMask = true
                         masksNum--
+                        unknownCounter--
                     } else {
                         // TODO: Show error: Not enough masks!
                     }
