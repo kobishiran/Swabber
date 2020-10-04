@@ -61,33 +61,41 @@ class MainActivity : AppCompatActivity() {
 
         // if number of neighbors is zero, expose all the neighbors too
         if (gameBoard[row][col].cantactNumber == 0) {
-            if (row + 1 < boardHight && col + 1 < boardWidth) exposeTile(row + 1, col + 1)
-            if (row + 1 < boardHight) exposeTile(row + 1, col)
-            if (row + 1 < boardHight && col - 1 >= 0) exposeTile(row + 1, col - 1)
-            if (col + 1 < boardWidth) exposeTile(row, col + 1)
-            if (col - 1 >= 0) exposeTile(row, col - 1)
-            if (row - 1 >= 0 && col + 1 < boardWidth) exposeTile(row - 1, col + 1)
-            if (row - 1 >= 0) exposeTile(row - 1, col)
-            if (row - 1 >= 0 && col - 1 >= 0) exposeTile(row - 1, col - 1)
+            if (row + 1 < boardHight && col + 1 < boardWidth)   exposeTile(row + 1, col + 1)
+            if (row + 1 < boardHight)                           exposeTile(row + 1, col)
+            if (row + 1 < boardHight && col - 1 >= 0)           exposeTile(row + 1, col - 1)
+            if (col + 1 < boardWidth)                           exposeTile(row, col + 1)
+            if (col - 1 >= 0)                                   exposeTile(row, col - 1)
+            if (row - 1 >= 0 && col + 1 < boardWidth)           exposeTile(row - 1, col + 1)
+            if (row - 1 >= 0)                                   exposeTile(row - 1, col)
+            if (row - 1 >= 0 && col - 1 >= 0)                   exposeTile(row - 1, col - 1)
         }
 
         // update the display of the tile
         updateDisplay(row, col)
 
         // change infectable status of self and all neighbors to false
-        // TODO: change infectable status of neighbors
+        gameBoard[row][col].isInfectable = false
+        if (row + 1 < boardHight && col + 1 < boardWidth)   gameBoard[row + 1][col + 1].isInfectable = false
+        if (row + 1 < boardHight)                           gameBoard[row + 1][col].isInfectable = false
+        if (row + 1 < boardHight && col - 1 >= 0)           gameBoard[row + 1][col - 1].isInfectable = false
+        if (col + 1 < boardWidth)                           gameBoard[row][col + 1].isInfectable = false
+        if (col - 1 >= 0)                                   gameBoard[row][col - 1].isInfectable = false
+        if (row - 1 >= 0 && col + 1 < boardWidth)           gameBoard[row - 1][col + 1].isInfectable = false
+        if (row - 1 >= 0)                                   gameBoard[row - 1][col].isInfectable = false
+        if (row - 1 >= 0 && col - 1 >= 0)                   gameBoard[row - 1][col - 1].isInfectable = false
     }
 
     private fun countNeighbors(row: Int, col: Int): Int {
         var contactNumber = 0
         if (row + 1 < boardHight && col + 1 < boardWidth) contactNumber += gameBoard[row + 1][col + 1].isSick.toInt()
-        if (row + 1 < boardHight) contactNumber += gameBoard[row + 1][col].isSick.toInt()
-        if (row + 1 < boardHight && col - 1 >= 0) contactNumber += gameBoard[row + 1][col - 1].isSick.toInt()
-        if (col + 1 < boardWidth) contactNumber += gameBoard[row][col + 1].isSick.toInt()
-        if (col - 1 >= 0) contactNumber += gameBoard[row][col - 1].isSick.toInt()
-        if (row - 1 >= 0 && col + 1 < boardWidth) contactNumber += gameBoard[row - 1][col + 1].isSick.toInt()
-        if (row - 1 >= 0) contactNumber += gameBoard[row - 1][col].isSick.toInt()
-        if (row - 1 >= 0 && col - 1 >= 0) contactNumber += gameBoard[row - 1][col - 1].isSick.toInt()
+        if (row + 1 < boardHight) contactNumber                         += gameBoard[row + 1][col].isSick.toInt()
+        if (row + 1 < boardHight && col - 1 >= 0) contactNumber         += gameBoard[row + 1][col - 1].isSick.toInt()
+        if (col + 1 < boardWidth) contactNumber                         += gameBoard[row][col + 1].isSick.toInt()
+        if (col - 1 >= 0) contactNumber                                 += gameBoard[row][col - 1].isSick.toInt()
+        if (row - 1 >= 0 && col + 1 < boardWidth) contactNumber         += gameBoard[row - 1][col + 1].isSick.toInt()
+        if (row - 1 >= 0) contactNumber                                 += gameBoard[row - 1][col].isSick.toInt()
+        if (row - 1 >= 0 && col - 1 >= 0) contactNumber                 += gameBoard[row - 1][col - 1].isSick.toInt()
         return contactNumber
     }
 

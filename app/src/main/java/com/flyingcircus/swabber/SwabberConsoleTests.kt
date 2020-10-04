@@ -97,7 +97,15 @@ fun exposeTile(row: Int, col: Int) {
     updateDisplay(row, col)
 
     // change infectable status of self and all neighbors to false
-    // TODO: change infectable status of neighbors
+    gameBoard[row][col].isInfectable = false
+    if (row + 1 < boardHight && col + 1 < boardWidth)   gameBoard[row + 1][col + 1].isInfectable = false
+    if (row + 1 < boardHight)                           gameBoard[row + 1][col].isInfectable = false
+    if (row + 1 < boardHight && col - 1 >= 0)           gameBoard[row + 1][col - 1].isInfectable = false
+    if (col + 1 < boardWidth)                           gameBoard[row][col + 1].isInfectable = false
+    if (col - 1 >= 0)                                   gameBoard[row][col - 1].isInfectable = false
+    if (row - 1 >= 0 && col + 1 < boardWidth)           gameBoard[row - 1][col + 1].isInfectable = false
+    if (row - 1 >= 0)                                   gameBoard[row - 1][col].isInfectable = false
+    if (row - 1 >= 0 && col - 1 >= 0)                   gameBoard[row - 1][col - 1].isInfectable = false
 }
 
 fun countNeighbors(row: Int, col: Int): Int {
