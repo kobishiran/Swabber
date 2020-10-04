@@ -154,6 +154,12 @@ fun updateDisplay(row: Int, col: Int) {
 }
 
 fun gameOver(victory: Boolean) {
+    for (row in 0 until boardHight) {
+        for (col in 0 until boardWidth) {
+            gameBoard[row][col].cantactNumber = countNeighbors(row, col)
+            gameBoard[row][col].isExposed = true
+        }
+    }
     printBoard()
     val massage = when (victory) {
         true -> "Congratulations! You won!"
