@@ -6,12 +6,12 @@ import android.os.Bundle
 class MainActivity : AppCompatActivity() {
 
     // Initialise global variables
-    val minesNum = 10
+    val initialSickNum = 10
     val boardWidth = 10
     val boardHight = 10
-    var gameBoard = Array(boardHight) { Array<Tile>(boardWidth) { Tile() } }
+    var gameBoard = Array(boardHight) { Array<Person>(boardWidth) { Person() } }
     var unknownCounter = boardHight * boardWidth
-    var masksNum = minesNum
+    var masksNum = initialSickNum
     //    var matMines = Array(boardHight) {Array(boardWidth) {0} }
     //    var matMask = Array(boardHight) {Array(boardWidth) {0} }
 
@@ -23,15 +23,15 @@ class MainActivity : AppCompatActivity() {
 
     fun initializeBoard() {
         // wipe board clean
-        gameBoard = Array(boardHight) { Array<Tile>(boardWidth) { Tile() } }
+        gameBoard = Array(boardHight) { Array<Person>(boardWidth) { Person() } }
 
         // reset counters
-        masksNum = minesNum
+        masksNum = initialSickNum
         unknownCounter = boardHight * boardWidth
 
         // generate random mines
-        val randomIndexes = (0 until boardWidth * boardHight).shuffled().take(minesNum)
-        randomIndexes.forEach { index -> gameBoard[index / boardWidth][index % boardWidth].isBomb = true }
+        val randomIndexes = (0 until boardWidth * boardHight).shuffled().take(initialSickNum)
+        randomIndexes.forEach { index -> gameBoard[index / boardWidth][index % boardWidth].isSick = true }
     }
 
     fun clickTile(row: Int, col: Int) {
@@ -52,15 +52,15 @@ class MainActivity : AppCompatActivity() {
         if (gameBoard[row][col].isExposed) return
 
         // Check if the tile contains a mine
-        if (gameBoard[row][col].isBomb) gameOver(false)
+        if (gameBoard[row][col].isSick) gameOver(false)
 
         // if not, expose the tile, and possibly it's neighbors
         gameBoard[row][col].isExposed = true
         unknownCounter--
-        gameBoard[row][col].neighborMines = countNeighbors(row, col)
+        gameBoard[row][col].cantactNumber = countNeighbors(row, col)
 
         // if number of neighbors is zero, expose all the neighbors too
-        if (gameBoard[row][col].neighborMines == 0) {
+        if (gameBoard[row][col].cantactNumber == 0) {
             // TODO: add boundary conditions
             exposeTile(row + 1, col + 1)
             exposeTile(row + 1, col)
@@ -74,18 +74,21 @@ class MainActivity : AppCompatActivity() {
 
         // update the display of the tile
         updateDisplay(row, col)
+
+        // change infectable status of self and all neighbors to false
+        // TODO: change infectable status of neighbors
     }
 
     private fun countNeighbors(row: Int, col: Int): Int {
         // TODO: add boundary conditions
-        return (gameBoard[row + 1][col + 1].isBomb.toInt() +
-                gameBoard[row + 1][col].isBomb.toInt() +
-                gameBoard[row + 1][col - 1].isBomb.toInt() +
-                gameBoard[row][col + 1].isBomb.toInt() +
-                gameBoard[row][col - 1].isBomb.toInt() +
-                gameBoard[row - 1][col + 1].isBomb.toInt() +
-                gameBoard[row - 1][col].isBomb.toInt() +
-                gameBoard[row - 1][col - 1].isBomb.toInt())
+        return (gameBoard[row + 1][col + 1].isSick.toInt() +
+                gameBoard[row + 1][col].isSick.toInt() +
+                gameBoard[row + 1][col - 1].isSick.toInt() +
+                gameBoard[row][col + 1].isSick.toInt() +
+                gameBoard[row][col - 1].isSick.toInt() +
+                gameBoard[row - 1][col + 1].isSick.toInt() +
+                gameBoard[row - 1][col].isSick.toInt() +
+                gameBoard[row - 1][col - 1].isSick.toInt())
     }
 
     fun holdTile(row: Int, col: Int) {
@@ -105,6 +108,9 @@ class MainActivity : AppCompatActivity() {
                 }
             }
             updateDisplay(row, col)
+
+            // update infectable status to false
+            // TODO: update infectable status to false
         } else {
             // TODO: Show error: Already exposed!
         }
@@ -126,9 +132,11 @@ class MainActivity : AppCompatActivity() {
     fun Boolean.toInt() = if (this) 1 else 0
 }
 
-class Tile() {
-    var isBomb = false
+class Person() {
+    var isSick = false
     var hasMask = false
     var isExposed = false
-    var neighborMines = -1
+    var cantactNumber = -1
+    var isInfectable = true
+    var daysInfected = false
 }
