@@ -176,5 +176,6 @@ class Person() {
     var isExposed = false
     var cantactNumber = -1
     var isInfectable = true
-    var daysInfected = false
+    var daysInfected = 0
+    var isAlive = true
 }
