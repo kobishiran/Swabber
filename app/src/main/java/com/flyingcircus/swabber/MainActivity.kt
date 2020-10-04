@@ -2,6 +2,9 @@ package com.flyingcircus.swabber
 
 import androidx.appcompat.app.AppCompatActivity
 import android.os.Bundle
+import android.os.CountDownTimer
+import android.widget.TextView
+
 
 class MainActivity : AppCompatActivity() {
 
@@ -12,13 +15,19 @@ class MainActivity : AppCompatActivity() {
     var gameBoard = Array(boardHight) { Array<Person>(boardWidth) { Person() } }
     var unknownCounter = boardHight * boardWidth
     var masksNum = initialSickNum
-    //    var matMines = Array(boardHight) {Array(boardWidth) {0} }
-    //    var matMask = Array(boardHight) {Array(boardWidth) {0} }
+    val dayLengthMilli = 30_000L
+    lateinit var countDownTimer: CountDownTimer
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_main)
 
+        startTimer(dayLengthMilli)
+    }
+
+    override fun onDestroy() {
+        countDownTimer.cancel()
+        super.onDestroy()
     }
 
     fun initializeBoard() {
@@ -29,7 +38,7 @@ class MainActivity : AppCompatActivity() {
         masksNum = initialSickNum
         unknownCounter = boardHight * boardWidth
 
-        // generate random mines
+        // generate random sick people
         val randomIndexes = (0 until boardWidth * boardHight).shuffled().take(initialSickNum)
         randomIndexes.forEach { index -> gameBoard[index / boardWidth][index % boardWidth].isSick = true }
     }
@@ -51,7 +60,7 @@ class MainActivity : AppCompatActivity() {
         // if tile is already exposed, return
         if (gameBoard[row][col].isExposed) return
 
-        // Check if the tile contains a mine
+        // Check if the tile contains a sick person
         if (gameBoard[row][col].isSick) gameOver(false)
 
         // if not, expose the tile, and possibly it's neighbors
@@ -119,19 +128,17 @@ class MainActivity : AppCompatActivity() {
             }
             updateDisplay(row, col)
 
-            // update infectable status to false
-            // TODO: update infectable status to false
         } else {
             // TODO: Show error: Already exposed!
         }
     }
 
     private fun updateDisplay(row: Int, col: Int) {
-        TODO("Not yet implemented")
+        // TODO("Not yet implemented")
     }
 
     private fun gameOver(victory: Boolean) {
-        TODO("Not yet implemented")
+        // TODO("Not yet implemented")
     }
 
     fun checkVictory() {
@@ -140,6 +147,27 @@ class MainActivity : AppCompatActivity() {
 
     // extension function to turn bool to int
     fun Boolean.toInt() = if (this) 1 else 0
+
+    fun startTimer(timeToCountInMili: Long) {
+        countDownTimer = object : CountDownTimer(timeToCountInMili, 1000L) {
+
+            // every second, update the timer textView
+            override fun onTick(millisUntilFinished: Long) {
+                val minutes = millisUntilFinished / 60_000
+                val seconds = (millisUntilFinished / 1000) % 60
+                val timer = findViewById<TextView>(R.id.timer)
+                timer.text = "${minutes.toString().padStart(2, '0')}:${seconds.toString().padStart(2, '0')}"
+            }
+
+            // when the timer finishes, start a night cycle, and then restart the timer
+            override fun onFinish() {
+                countDownTimer.cancel()
+                // TODO: transition to night cycle
+                startTimer(dayLengthMilli)
+            }
+        }
+        countDownTimer.start()
+    }
 }
 
 class Person() {

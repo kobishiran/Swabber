@@ -1,13 +1,16 @@
 package com.flyingcircus.swabber
 
+import android.os.CountDownTimer
 import java.util.*
 import kotlin.system.exitProcess
 
 var scanner = Scanner(System.`in`)
+lateinit var countDownTimer: CountDownTimer
 
 fun main(args: Array<String>) {
     initializeBoard()
     printBoard()
+    startTimer(oneMinuteInMili)
     var row: Int
     var col: Int
     while (true) {
@@ -22,6 +25,21 @@ fun main(args: Array<String>) {
     }
 }
 
+fun startTimer(timeToCountInMili: Long) {
+    val countDownTimer = object : CountDownTimer(timeToCountInMili, 1000L) {
+        override fun onTick(millisUntilFinished: Long) {
+            println(millisUntilFinished / 1000)
+        }
+
+        override fun onFinish() {
+            println("Night has come! A new day starts!")
+            countDownTimer.cancel()
+            startTimer(oneMinuteInMili)
+        }
+    }
+    countDownTimer.start()
+}
+
 // Initialise global variables
 val initialSickNum = 10
 val boardWidth = 10
@@ -29,6 +47,7 @@ val boardHight = 10
 var gameBoard = Array(boardHight) { Array<Person>(boardWidth) { Person() } }
 var unknownCounter = boardHight * boardWidth
 var masksNum = initialSickNum
+val oneMinuteInMili = 60_000L
 //    var matMines = Array(boardHight) {Array(boardWidth) {0} }
 //    var matMask = Array(boardHight) {Array(boardWidth) {0} }
 
@@ -136,7 +155,7 @@ fun holdTile(row: Int, col: Int) {
                     masksNum--
                     unknownCounter--
                 } else {
-                    println("Error: ot enough masks!")
+                    println("Error: Not enough masks!")
                 }
             }
         }
