@@ -44,28 +44,28 @@ fun startTimer(timeToCountInMili: Long) {
 // Initialise global variables
 val initialSickNum = 10
 val boardWidth = 10
-val boardHight = 10
-var gameBoard = Array(boardHight) { row -> Array<Person>(boardWidth) { col -> Person(row, col) } }
-var unknownCounter = boardHight * boardWidth
+val boardHeight = 10
+var gameBoard = Array(boardHeight) { row -> Array<Person>(boardWidth) { col -> Person(row, col) } }
+var unknownCounter = boardHeight * boardWidth
 var masksNum = initialSickNum
 val oneMinuteInMili = 60_000L
 val infectionRadius = 2
 val Pdeath = 0.1F
 val Pinfect = 0.2F
-//    var matMines = Array(boardHight) {Array(boardWidth) {0} }
-//    var matMask = Array(boardHight) {Array(boardWidth) {0} }
+//    var matMines = Array(boardHeight) {Array(boardWidth) {0} }
+//    var matMask = Array(boardHeight) {Array(boardWidth) {0} }
 
 
 fun initializeBoard() {
     // wipe board clean
-    gameBoard = Array(boardHight) { row -> Array<Person>(boardWidth) { col -> Person(row, col) } }
+    gameBoard = Array(boardHeight) { row -> Array<Person>(boardWidth) { col -> Person(row, col) } }
 
     // reset counters
     masksNum = initialSickNum
-    unknownCounter = boardHight * boardWidth
+    unknownCounter = boardHeight * boardWidth
 
     // generate random mines
-    val randomIndexes = (0 until boardWidth * boardHight).shuffled().take(initialSickNum)
+    val randomIndexes = (0 until boardWidth * boardHeight).shuffled().take(initialSickNum)
     randomIndexes.forEach { index -> gameBoard[index / boardWidth][index % boardWidth].isSick = true }
 }
 
@@ -86,7 +86,7 @@ fun exposeTile(row: Int, col: Int) {
     // if tile is already exposed, return
     if (gameBoard[row][col].isExposed) return
 
-    // Check if the tile contains a mine
+    // Check if the tile contains a sick person
     if (gameBoard[row][col].isSick) gameOver(false)
 
     // if not, expose the tile, and possibly it's neighbors
@@ -96,9 +96,9 @@ fun exposeTile(row: Int, col: Int) {
 
     // if number of neighbors is zero, expose all the neighbors too
     if (gameBoard[row][col].cantactNumber == 0) {
-        if (row + 1 < boardHight && col + 1 < boardWidth) exposeTile(row + 1, col + 1)
-        if (row + 1 < boardHight) exposeTile(row + 1, col)
-        if (row + 1 < boardHight && col - 1 >= 0) exposeTile(row + 1, col - 1)
+        if (row + 1 < boardHeight && col + 1 < boardWidth) exposeTile(row + 1, col + 1)
+        if (row + 1 < boardHeight) exposeTile(row + 1, col)
+        if (row + 1 < boardHeight && col - 1 >= 0) exposeTile(row + 1, col - 1)
         if (col + 1 < boardWidth) exposeTile(row, col + 1)
         if (col - 1 >= 0) exposeTile(row, col - 1)
         if (row - 1 >= 0 && col + 1 < boardWidth) exposeTile(row - 1, col + 1)
@@ -111,9 +111,9 @@ fun exposeTile(row: Int, col: Int) {
 
     // change infectable status of self and all neighbors to false
     gameBoard[row][col].isInfectable = false
-    if (row + 1 < boardHight && col + 1 < boardWidth)   gameBoard[row + 1][col + 1].isInfectable = false
-    if (row + 1 < boardHight)                           gameBoard[row + 1][col].isInfectable = false
-    if (row + 1 < boardHight && col - 1 >= 0)           gameBoard[row + 1][col - 1].isInfectable = false
+    if (row + 1 < boardHeight && col + 1 < boardWidth)   gameBoard[row + 1][col + 1].isInfectable = false
+    if (row + 1 < boardHeight)                           gameBoard[row + 1][col].isInfectable = false
+    if (row + 1 < boardHeight && col - 1 >= 0)           gameBoard[row + 1][col - 1].isInfectable = false
     if (col + 1 < boardWidth)                           gameBoard[row][col + 1].isInfectable = false
     if (col - 1 >= 0)                                   gameBoard[row][col - 1].isInfectable = false
     if (row - 1 >= 0 && col + 1 < boardWidth)           gameBoard[row - 1][col + 1].isInfectable = false
@@ -123,9 +123,9 @@ fun exposeTile(row: Int, col: Int) {
 
 fun countNeighbors(row: Int, col: Int): Int {
     var contactNumber = 0
-    if (row + 1 < boardHight && col + 1 < boardWidth) contactNumber += gameBoard[row + 1][col + 1].isSick.toInt()
-    if (row + 1 < boardHight) contactNumber += gameBoard[row + 1][col].isSick.toInt()
-    if (row + 1 < boardHight && col - 1 >= 0) contactNumber += gameBoard[row + 1][col - 1].isSick.toInt()
+    if (row + 1 < boardHeight && col + 1 < boardWidth) contactNumber += gameBoard[row + 1][col + 1].isSick.toInt()
+    if (row + 1 < boardHeight) contactNumber += gameBoard[row + 1][col].isSick.toInt()
+    if (row + 1 < boardHeight && col - 1 >= 0) contactNumber += gameBoard[row + 1][col - 1].isSick.toInt()
     if (col + 1 < boardWidth) contactNumber += gameBoard[row][col + 1].isSick.toInt()
     if (col - 1 >= 0) contactNumber += gameBoard[row][col - 1].isSick.toInt()
     if (row - 1 >= 0 && col + 1 < boardWidth) contactNumber += gameBoard[row - 1][col + 1].isSick.toInt()
@@ -206,7 +206,7 @@ fun infectionsCycle() {
 fun infectNeighbors(row: Int, col: Int, r: Int): Int {
     var infected = 0
     for (rowDiff in r downTo -r) {
-        if (row + rowDiff >= boardHight || row + rowDiff < 0) continue  // boundary condition
+        if (row + rowDiff >= boardHeight || row + rowDiff < 0) continue  // boundary condition
 
         // TODO: change infection probability mechanism here
         if (col + r in 0 until boardWidth && gameBoard[row + rowDiff][col + r].isInfectable) {gameBoard[row + rowDiff][col + r].isSick = Random.nextFloat() <= Pinfect / r ; infected++}
@@ -227,7 +227,7 @@ fun updateDisplay(row: Int, col: Int) {
 }
 
 fun gameOver(victory: Boolean) {
-    for (row in 0 until boardHight) {
+    for (row in 0 until boardHeight) {
         for (col in 0 until boardWidth) {
             gameBoard[row][col].cantactNumber = countNeighbors(row, col)
             gameBoard[row][col].isExposed = true
@@ -263,7 +263,7 @@ fun getClickOrHold(): Boolean {
 
 fun printBoard() {
     var currPerson: Person
-    for (row in 0 until boardHight) {
+    for (row in 0 until boardHeight) {
         for (col in 0 until boardWidth) {
             currPerson = gameBoard[row][col]
             var toPrint = ""

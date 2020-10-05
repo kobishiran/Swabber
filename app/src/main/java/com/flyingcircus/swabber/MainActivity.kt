@@ -13,19 +13,19 @@ import kotlinx.android.synthetic.main.activity_main.*
 class MainActivity : AppCompatActivity() {
 
     // Initialise global variables
-    val initialSickNum = 10
-    val boardHight = 10
-    val boardWidth = 10
-    var gameBoard = Array(boardHight) { row -> Array<Person>(boardWidth) { col -> Person(row, col) } }
-    var unknownCounter = boardHight * boardWidth
-    var masksNum = initialSickNum
-    val dayLengthMilli = 30_000L
+    val initialSickNum = 10         // number of "mines"
+    val boardHeight = 10             // number of rows
+    val boardWidth = 10             // number of columns
+    var gameBoard = Array(boardHeight) { row -> Array<Person>(boardWidth) { col -> Person(row, col) } }
+    var unknownCounter = boardHeight * boardWidth // number of "tiles" not "exposed" neither "flagged"
+    var masksNum = initialSickNum   // number of "flags"
+    val dayLengthMilli = 30_000L    // number of (milli)seconds from day to day
     lateinit var countDownTimer: CountDownTimer
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_main)
-        printBoard(boardHight,boardWidth)
+        printInitBoard(boardHeight,boardWidth)
         startTimer(dayLengthMilli)
     }
 
@@ -36,41 +36,41 @@ class MainActivity : AppCompatActivity() {
 
     fun initializeBoard() {
         // wipe board clean
-        gameBoard = Array(boardHight) { row -> Array<Person>(boardWidth) { col -> Person(row, col) } }
+        gameBoard = Array(boardHeight) { row -> Array<Person>(boardWidth) { col -> Person(row, col) } }
 
         // reset counters
         masksNum = initialSickNum
-        unknownCounter = boardHight * boardWidth
+        unknownCounter = boardHeight * boardWidth
 
         // generate random sick people
-        val randomIndexes = (0 until boardWidth * boardHight).shuffled().take(initialSickNum)
-        randomIndexes.forEach { index -> gameBoard[index / boardWidth][index % boardWidth].isSick = true }
+        val randomIndices = (0 until boardWidth * boardHeight).shuffled().take(initialSickNum)
+        randomIndices.forEach { index -> gameBoard[index / boardWidth][index % boardWidth].isSick = true }
     }
 
-    fun printBoard(boardHight: Int, boardWidth: Int){
+    private fun printInitBoard(boardHeight: Int, boardWidth: Int){
         // The size of matrix
         val spaceX = 0   // spacing between elements in each row
         val spaceY = 0   // spacing between elements in each column
 
 
-        for (counterY in 1..boardHight) {
+        for (counterY in 1..boardHeight) {
 
             // Create new horizontal LinearLayout programmatically
             val child = LinearLayout(this)
             child.orientation = LinearLayout.HORIZONTAL
 
             // Create a LinearLayout.LayoutParams object for the new horizontal LinearLayout
-            val childparams = LinearLayout.LayoutParams(
+            val layoutParams = LinearLayout.LayoutParams(
                 LinearLayout.LayoutParams.MATCH_PARENT,
                 LinearLayout.LayoutParams.WRAP_CONTENT,
                 1F,
             )
 
             // Add margin to the horizontal LinearLayout
-            childparams.setMargins(0,spaceY,0,0)
+            layoutParams.setMargins(0,spaceY,0,0)
 
             // Now, specify the horizontal LinearLayout width and height (dimension)
-            child.layoutParams = childparams
+            child.layoutParams = layoutParams
 
 
             // Now in the new horizontal layout create n-text views
@@ -83,17 +83,17 @@ class MainActivity : AppCompatActivity() {
                 imageview.setImageResource(R.mipmap.ic_launcher)
 
                 // Create a LinearLayout.LayoutParams object for text view
-                val imageparams = LinearLayout.LayoutParams(
+                val imageParams = LinearLayout.LayoutParams(
                     LinearLayout.LayoutParams.WRAP_CONTENT, // This will define text view width
                     LinearLayout.LayoutParams.WRAP_CONTENT, // This will define text view height
                     1F,
                 )
 
                 // Add margin to the text view
-                imageparams.setMargins(0, 0, spaceX, 0)
+                imageParams.setMargins(0, 0, spaceX, 0)
 
                 // Now, specify the text view width and height (dimension)
-                imageview.layoutParams = imageparams
+                imageview.layoutParams = imageParams
 
                 // Change the image view background color
                 imageview.setBackgroundColor(Color.TRANSPARENT)
@@ -131,7 +131,7 @@ class MainActivity : AppCompatActivity() {
 
     private fun exposeTile(row: Int, col: Int) {
         // if tile is already exposed, return
-        if (gameBoard[row][col].isExposed) return
+        if (gameBoard[row][col].isExposed) return   // Kobi: It is redundant
 
         // Check if the tile contains a sick person
         if (gameBoard[row][col].isSick) gameOver(false)
@@ -143,9 +143,9 @@ class MainActivity : AppCompatActivity() {
 
         // if number of neighbors is zero, expose all the neighbors too
         if (gameBoard[row][col].cantactNumber == 0) {
-            if (row + 1 < boardHight && col + 1 < boardWidth)   exposeTile(row + 1, col + 1)
-            if (row + 1 < boardHight)                           exposeTile(row + 1, col)
-            if (row + 1 < boardHight && col - 1 >= 0)           exposeTile(row + 1, col - 1)
+            if (row + 1 < boardHeight && col + 1 < boardWidth)   exposeTile(row + 1, col + 1)
+            if (row + 1 < boardHeight)                           exposeTile(row + 1, col)
+            if (row + 1 < boardHeight && col - 1 >= 0)           exposeTile(row + 1, col - 1)
             if (col + 1 < boardWidth)                           exposeTile(row, col + 1)
             if (col - 1 >= 0)                                   exposeTile(row, col - 1)
             if (row - 1 >= 0 && col + 1 < boardWidth)           exposeTile(row - 1, col + 1)
@@ -158,9 +158,9 @@ class MainActivity : AppCompatActivity() {
 
         // change infectable status of self and all neighbors to false
         gameBoard[row][col].isInfectable = false
-        if (row + 1 < boardHight && col + 1 < boardWidth)   gameBoard[row + 1][col + 1].isInfectable = false
-        if (row + 1 < boardHight)                           gameBoard[row + 1][col].isInfectable = false
-        if (row + 1 < boardHight && col - 1 >= 0)           gameBoard[row + 1][col - 1].isInfectable = false
+        if (row + 1 < boardHeight && col + 1 < boardWidth)   gameBoard[row + 1][col + 1].isInfectable = false
+        if (row + 1 < boardHeight)                           gameBoard[row + 1][col].isInfectable = false
+        if (row + 1 < boardHeight && col - 1 >= 0)           gameBoard[row + 1][col - 1].isInfectable = false
         if (col + 1 < boardWidth)                           gameBoard[row][col + 1].isInfectable = false
         if (col - 1 >= 0)                                   gameBoard[row][col - 1].isInfectable = false
         if (row - 1 >= 0 && col + 1 < boardWidth)           gameBoard[row - 1][col + 1].isInfectable = false
@@ -170,9 +170,9 @@ class MainActivity : AppCompatActivity() {
 
     private fun countNeighbors(row: Int, col: Int): Int {
         var contactNumber = 0
-        if (row + 1 < boardHight && col + 1 < boardWidth) contactNumber += gameBoard[row + 1][col + 1].isSick.toInt()
-        if (row + 1 < boardHight) contactNumber                         += gameBoard[row + 1][col].isSick.toInt()
-        if (row + 1 < boardHight && col - 1 >= 0) contactNumber         += gameBoard[row + 1][col - 1].isSick.toInt()
+        if (row + 1 < boardHeight && col + 1 < boardWidth) contactNumber += gameBoard[row + 1][col + 1].isSick.toInt()
+        if (row + 1 < boardHeight) contactNumber                         += gameBoard[row + 1][col].isSick.toInt()
+        if (row + 1 < boardHeight && col - 1 >= 0) contactNumber         += gameBoard[row + 1][col - 1].isSick.toInt()
         if (col + 1 < boardWidth) contactNumber                         += gameBoard[row][col + 1].isSick.toInt()
         if (col - 1 >= 0) contactNumber                                 += gameBoard[row][col - 1].isSick.toInt()
         if (row - 1 >= 0 && col + 1 < boardWidth) contactNumber         += gameBoard[row - 1][col + 1].isSick.toInt()
@@ -221,8 +221,8 @@ class MainActivity : AppCompatActivity() {
     // extension function to turn bool to int
     fun Boolean.toInt() = if (this) 1 else 0
 
-    fun startTimer(timeToCountInMili: Long) {
-        countDownTimer = object : CountDownTimer(timeToCountInMili, 1000L) {
+    fun startTimer(timeToCountInMilli: Long) {
+        countDownTimer = object : CountDownTimer(timeToCountInMilli, 1000L) {
 
             // every second, update the timer textView
             override fun onTick(millisUntilFinished: Long) {
