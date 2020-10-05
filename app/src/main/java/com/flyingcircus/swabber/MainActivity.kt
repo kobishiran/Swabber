@@ -30,7 +30,7 @@ class MainActivity : AppCompatActivity() {
     }
 
     override fun onDestroy() {
-        countDownTimer.cancel()
+        countDownTimer.cancel()  // make sure the counter is stopped before exiting
         super.onDestroy()
     }
 
