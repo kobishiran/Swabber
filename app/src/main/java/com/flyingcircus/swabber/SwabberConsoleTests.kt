@@ -52,17 +52,17 @@ fun displayTime(timeInSecs: Int) {
 }
 
 // Initialise global variables
-val initialSickNum = 20
-val boardWidth = 15
-val boardHeight = 15
+val initialSickNum = 8
+val boardWidth = 10
+val boardHeight = 10
 var gameBoard = Array(boardHeight) { row -> Array<Person>(boardWidth) { col -> Person(row, col) } }
 var unknownCounter = boardHeight * boardWidth
-var masksNum = initialSickNum * 5
-val dayLengthInMillis = 15_000L
+var masksNum = initialSickNum * 2
+val dayLengthInMillis = 40_000L
 var timeLeftSecs = dayLengthInMillis.toInt() / 1000
 val infectionRadius = 2
-val Pdeath = 0.02F
-val Pinfect = 0.1F
+val Pdeath = 0.01F
+val Pinfect = 0.07F
 //    var matMines = Array(boardHeight) {Array(boardWidth) {0} }
 //    var matMask = Array(boardHeight) {Array(boardWidth) {0} }
 
