@@ -301,7 +301,7 @@ class MainActivity : AppCompatActivity() {
         countDownTimer.start()
     }
 }
-
+// fuck this shit
 class Person(val row: Int, val col: Int) {
     var isSick = false
     var hasMask = false
