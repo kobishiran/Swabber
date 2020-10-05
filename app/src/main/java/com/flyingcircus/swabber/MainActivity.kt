@@ -133,12 +133,10 @@ class MainActivity : AppCompatActivity() {
             for (col in 1..boardWidth) {
                 val temp: ImageView = findViewById(100 * row + col)
                   temp.setOnClickListener() {
-                      Toast.makeText(this,"you clicked on $row and $col", Toast.LENGTH_SHORT).show()
-                      //clickTile(row, col)
+                      clickTile(row-1, col-1)
                   }
                 temp.setOnLongClickListener() {
-                    Toast.makeText(this,"you holded on $row and $col", Toast.LENGTH_SHORT).show()
-                    //holdTile(row, col)
+                    holdTile(row-1, col-1)
                     return@setOnLongClickListener true
                 }
             }
@@ -161,6 +159,7 @@ class MainActivity : AppCompatActivity() {
     }
 
     private fun exposeTile(row: Int, col: Int) {
+
         // if tile is already exposed, return
         if (gameBoard[row][col].isExposed) return   // Kobi: It is redundant
 
@@ -174,14 +173,14 @@ class MainActivity : AppCompatActivity() {
 
         // if number of neighbors is zero, expose all the neighbors too
         if (gameBoard[row][col].cantactNumber == 0) {
-            if (row + 1 < boardHeight && col + 1 < boardWidth)   exposeTile(row + 1, col + 1)
-            if (row + 1 < boardHeight)                           exposeTile(row + 1, col)
-            if (row + 1 < boardHeight && col - 1 >= 0)           exposeTile(row + 1, col - 1)
-            if (col + 1 < boardWidth)                           exposeTile(row, col + 1)
-            if (col - 1 >= 0)                                   exposeTile(row, col - 1)
-            if (row - 1 >= 0 && col + 1 < boardWidth)           exposeTile(row - 1, col + 1)
-            if (row - 1 >= 0)                                   exposeTile(row - 1, col)
-            if (row - 1 >= 0 && col - 1 >= 0)                   exposeTile(row - 1, col - 1)
+            if (row + 1 < boardHeight && col + 1 < boardWidth && !gameBoard[row+1][col+1].hasMask)   exposeTile(row + 1, col + 1)
+            if (row + 1 < boardHeight && !gameBoard[row+1][col].hasMask)                           exposeTile(row + 1, col)
+            if (row + 1 < boardHeight && col - 1 >= 0 && !gameBoard[row+1][col-1].hasMask)           exposeTile(row + 1, col - 1)
+            if (col + 1 < boardWidth && !gameBoard[row][col+1].hasMask)                           exposeTile(row, col + 1)
+            if (col - 1 >= 0 && !gameBoard[row][col-1].hasMask)                                   exposeTile(row, col - 1)
+            if (row - 1 >= 0 && col + 1 < boardWidth && !gameBoard[row-1][col+1].hasMask)           exposeTile(row - 1, col + 1)
+            if (row - 1 >= 0 && !gameBoard[row-1][col].hasMask)                                   exposeTile(row - 1, col)
+            if (row - 1 >= 0 && col - 1 >= 0 && !gameBoard[row-1][col-1].hasMask)                   exposeTile(row - 1, col - 1)
         }
 
         // update the display of the tile
@@ -242,7 +241,7 @@ class MainActivity : AppCompatActivity() {
     private fun updateDisplay(row: Int, col: Int) {
 
         // go to the unique id of that element
-        val temp: ImageView = findViewById(100 * row + col)
+        val temp: ImageView = findViewById(100 * (row+1) + (col+1) )
 
         if(gameBoard[row][col].hasMask){
             temp.setImageResource(R.drawable.unexposedflagged)
