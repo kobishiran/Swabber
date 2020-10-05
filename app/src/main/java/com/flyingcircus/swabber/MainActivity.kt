@@ -1,17 +1,21 @@
 package com.flyingcircus.swabber
 
+import android.graphics.Color
 import androidx.appcompat.app.AppCompatActivity
 import android.os.Bundle
 import android.os.CountDownTimer
+import android.widget.ImageView
+import android.widget.LinearLayout
 import android.widget.TextView
+import kotlinx.android.synthetic.main.activity_main.*
 
 
 class MainActivity : AppCompatActivity() {
 
     // Initialise global variables
     val initialSickNum = 10
-    val boardWidth = 10
     val boardHight = 10
+    val boardWidth = 10
     var gameBoard = Array(boardHight) { row -> Array<Person>(boardWidth) { col -> Person(row, col) } }
     var unknownCounter = boardHight * boardWidth
     var masksNum = initialSickNum
@@ -21,7 +25,7 @@ class MainActivity : AppCompatActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_main)
-
+        printBoard(boardHight,boardWidth)
         startTimer(dayLengthMilli)
     }
 
@@ -41,6 +45,75 @@ class MainActivity : AppCompatActivity() {
         // generate random sick people
         val randomIndexes = (0 until boardWidth * boardHight).shuffled().take(initialSickNum)
         randomIndexes.forEach { index -> gameBoard[index / boardWidth][index % boardWidth].isSick = true }
+    }
+
+    fun printBoard(boardHight: Int, boardWidth: Int){
+        // The size of matrix
+        val spaceX = 0   // spacing between elements in each row
+        val spaceY = 0   // spacing between elements in each column
+
+
+        for (counterY in 1..boardHight) {
+
+            // Create new horizontal LinearLayout programmatically
+            val child = LinearLayout(this)
+            child.orientation = LinearLayout.HORIZONTAL
+
+            // Create a LinearLayout.LayoutParams object for the new horizontal LinearLayout
+            val childparams = LinearLayout.LayoutParams(
+                LinearLayout.LayoutParams.MATCH_PARENT,
+                LinearLayout.LayoutParams.WRAP_CONTENT,
+                1F,
+            )
+
+            // Add margin to the horizontal LinearLayout
+            childparams.setMargins(0,spaceY,0,0)
+
+            // Now, specify the horizontal LinearLayout width and height (dimension)
+            child.layoutParams = childparams
+
+
+            // Now in the new horizontal layout create n-text views
+            for (counterX in 1..boardWidth) {
+
+                // Create a new TextView instance programmatically
+                val imageview = ImageView(this)
+
+                // Set Image Resource
+                imageview.setImageResource(R.mipmap.ic_launcher)
+
+                // Create a LinearLayout.LayoutParams object for text view
+                val imageparams = LinearLayout.LayoutParams(
+                    LinearLayout.LayoutParams.WRAP_CONTENT, // This will define text view width
+                    LinearLayout.LayoutParams.WRAP_CONTENT, // This will define text view height
+                    1F,
+                )
+
+                // Add margin to the text view
+                imageparams.setMargins(0, 0, spaceX, 0)
+
+                // Now, specify the text view width and height (dimension)
+                imageview.layoutParams = imageparams
+
+                // Change the image view background color
+                imageview.setBackgroundColor(Color.TRANSPARENT)
+
+                // Put some padding on image view
+                imageview.setPadding(0, 0, 0, 0)
+
+
+                // Finally, add the text view to the view group
+                child.addView(imageview)
+
+
+                // Increment counterX
+            }
+
+
+            root_layout.addView(child)
+
+            // Increment counterY
+        }
     }
 
     fun clickTile(row: Int, col: Int) {

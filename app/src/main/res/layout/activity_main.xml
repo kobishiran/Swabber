@@ -1,21 +1,25 @@
 <?xml version="1.0" encoding="utf-8"?>
-<androidx.constraintlayout.widget.ConstraintLayout
+
+<LinearLayout
         xmlns:android="http://schemas.android.com/apk/res/android"
-        xmlns:tools="http://schemas.android.com/tools"
         xmlns:app="http://schemas.android.com/apk/res-auto"
+        android:id="@+id/root_layout"
         android:layout_width="match_parent"
         android:layout_height="match_parent"
-        tools:context=".MainActivity">
+        android:orientation="vertical"
+        android:padding="16dp"
+>
+
     <TextView
             android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:text="Hello World!"
+            android:layout_height="34dp"
+            android:text="@string/welcome_to_swabber"
             app:layout_constraintBottom_toBottomOf="parent"
             app:layout_constraintLeft_toLeftOf="parent"
             app:layout_constraintRight_toRightOf="parent"
             app:layout_constraintTop_toTopOf="parent" android:id="@+id/textView2"/>
     <TextView
-            android:text="00:00"
+            android:text="@string/_00_00"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content" android:id="@+id/timer"
             app:layout_constraintTop_toTopOf="parent"
@@ -25,4 +29,5 @@
             android:textAppearance="@style/TextAppearance.AppCompat.Large" android:textColor="#FF0000"
             android:textStyle="bold"/>
 
-</androidx.constraintlayout.widget.ConstraintLayout>
+
+</LinearLayout>
