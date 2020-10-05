@@ -2,6 +2,7 @@ package com.flyingcircus.swabber
 
 import android.os.CountDownTimer
 import java.util.*
+import kotlin.random.Random
 import kotlin.system.exitProcess
 
 var scanner = Scanner(System.`in`)
@@ -44,27 +45,20 @@ fun startTimer(timeToCountInMili: Long) {
 val initialSickNum = 10
 val boardWidth = 10
 val boardHight = 10
-var gameBoard = Array(boardHight) { Array<Person>(boardWidth) { Person() } }
+var gameBoard = Array(boardHight) { row -> Array<Person>(boardWidth) { col -> Person(row, col) } }
 var unknownCounter = boardHight * boardWidth
 var masksNum = initialSickNum
 val oneMinuteInMili = 60_000L
+val infectionRadius = 2
+val Pdeath = 0.1F
+val Pinfect = 0.2F
 //    var matMines = Array(boardHight) {Array(boardWidth) {0} }
 //    var matMask = Array(boardHight) {Array(boardWidth) {0} }
 
 
-fun getIndex(dim: String): Int {
-    println("Insert $dim:")
-    return scanner.nextInt()
-}
-
-fun getClickOrHold(): Boolean {
-    println("Click or Hold? 0 / 1")
-    return scanner.nextInt() == 1
-}
-
 fun initializeBoard() {
     // wipe board clean
-    gameBoard = Array(boardHight) { Array<Person>(boardWidth) { Person() } }
+    gameBoard = Array(boardHight) { row -> Array<Person>(boardWidth) { col -> Person(row, col) } }
 
     // reset counters
     masksNum = initialSickNum
@@ -168,6 +162,66 @@ fun holdTile(row: Int, col: Int) {
     }
 }
 
+fun nightCycle() {
+    // Display a night starting massage
+    println("\n------- The Night has begun...! -------")
+
+    // Start an infections cycle!
+    infectionsCycle()
+
+    // Display a night ending massage
+    println("\n------- A new day begins! -------")
+}
+
+fun infectionsCycle() {
+    var deadNum = 0
+    var infectedNum = 0
+    // find every sick person that has no mask
+    gameBoard.forEach { arrayOfPersons ->
+        arrayOfPersons.forEach { person ->
+            if (person.isSick && !person.hasMask) {
+
+                // the sick person might infect his neighbors, depending on their distance from him
+                for (r in 1..infectionRadius) {
+                    infectedNum += infectNeighbors(person.row, person.col, r)
+                    // TODO: if infectedNum > N, break?
+                }
+
+                // also, the sick person might die, depending on how long he has been sick
+                val heDies = Random.nextFloat() <= Pdeath * person.daysInfected // TODO: change death probability mechanism here
+                if (heDies) {
+                    person.isAlive = false
+                    person.isExposed = true
+                    person.isInfectable = false
+                    deadNum++
+
+                    updateDisplay(person.row, person.col)
+                    // TODO: Update the graphic dead counter
+                }
+            }
+        }
+    }
+}
+
+fun infectNeighbors(row: Int, col: Int, r: Int): Int {
+    var infected = 0
+    for (rowDiff in r downTo -r) {
+        if (row + rowDiff >= boardHight || row + rowDiff < 0) continue  // boundary condition
+
+        // TODO: change infection probability mechanism here
+        if (col + r in 0 until boardWidth && gameBoard[row + rowDiff][col + r].isInfectable) {gameBoard[row + rowDiff][col + r].isSick = Random.nextFloat() <= Pinfect / r ; infected++}
+        if (col - r in 0 until boardWidth && gameBoard[row + rowDiff][col - r].isInfectable) {gameBoard[row + rowDiff][col - r].isSick = Random.nextFloat() <= Pinfect / r ; infected++}
+        if (rowDiff == r || rowDiff == -r) for (colDiff in r-1 downTo (1 - r)) {
+            if (col + colDiff >= boardWidth || col + colDiff < 0) continue  // boundary condition
+            if (gameBoard[row + rowDiff][col + colDiff].isInfectable) {gameBoard[row + rowDiff][col + colDiff].isSick = Random.nextFloat() <= Pinfect / r ; infected++}
+        }
+    }
+    return infected
+}
+
+
+//////////// Aux Functions ////////////
+
 fun updateDisplay(row: Int, col: Int) {
     // TODO("Not yet implemented")
 }
@@ -194,6 +248,18 @@ fun checkVictory() {
 
 // extension function to turn bool to int
 fun Boolean.toInt() = if (this) 1 else 0
+
+
+///////// Added functions for console interaction /////////
+fun getIndex(dim: String): Int {
+    println("Insert $dim:")
+    return scanner.nextInt()
+}
+
+fun getClickOrHold(): Boolean {
+    println("Click or Hold? 0 / 1")
+    return scanner.nextInt() == 1
+}
 
 fun printBoard() {
     var currPerson: Person

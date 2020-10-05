@@ -12,7 +12,7 @@ class MainActivity : AppCompatActivity() {
     val initialSickNum = 10
     val boardWidth = 10
     val boardHight = 10
-    var gameBoard = Array(boardHight) { Array<Person>(boardWidth) { Person() } }
+    var gameBoard = Array(boardHight) { row -> Array<Person>(boardWidth) { col -> Person(row, col) } }
     var unknownCounter = boardHight * boardWidth
     var masksNum = initialSickNum
     val dayLengthMilli = 30_000L
@@ -32,7 +32,7 @@ class MainActivity : AppCompatActivity() {
 
     fun initializeBoard() {
         // wipe board clean
-        gameBoard = Array(boardHight) { Array<Person>(boardWidth) { Person() } }
+        gameBoard = Array(boardHight) { row -> Array<Person>(boardWidth) { col -> Person(row, col) } }
 
         // reset counters
         masksNum = initialSickNum
@@ -170,7 +170,7 @@ class MainActivity : AppCompatActivity() {
     }
 }
 
-class Person() {
+class Person(val row: Int, val col: Int) {
     var isSick = false
     var hasMask = false
     var isExposed = false
