@@ -19,7 +19,7 @@ class MainActivity : AppCompatActivity() {
     val initialSickNum = 20         // number of "mines"
     val boardHeight = 16             // number of rows
     val boardWidth = 10             // number of columns
-    var gameBoard = Array(boardHeight) { row -> Array<Person>(boardWidth) { col -> Person(row, col) } }
+    lateinit var gameBoard: Array<Array<Person>>
     var unknownCounter = boardHeight * boardWidth // number of "tiles" not "exposed" neither "flagged"
     var masksNum = initialSickNum   // number of "flags"
     val dayLengthInMilli = 20_000L    // number of (milli)seconds from day to day
@@ -49,7 +49,7 @@ class MainActivity : AppCompatActivity() {
 
     private fun initializeBoard() {
         // wipe board clean
-        gameBoard = Array(boardHeight) { row -> Array<Person>(boardWidth) { col -> Person(row, col) } }
+        gameBoard = Array(boardHeight) { row -> Array<Person>(boardWidth) { col -> Person(row, col, Random.nextFloat() <= 0.5)} }
 
         // reset counters
         masksNum = initialSickNum
@@ -326,30 +326,54 @@ class MainActivity : AppCompatActivity() {
     private fun updateDisplay(row: Int, col: Int) {
 
         // go to the unique id of that element
-        val temp: ImageView = findViewById(100 * (row+1) + (col+1) )
+        val temp: ImageView = findViewById(100 * (row + 1) + (col + 1))
 
-        if(gameBoard[row][col].hasMask){
-            temp.setImageResource(R.drawable.unexposedflagged)
-        } else if (!gameBoard[row][col].isExposed)
-            temp.setImageResource(R.drawable.unexposed)
-          else if (gameBoard[row][col].isExposed) {
-            when (gameBoard[row][col].contactNumber){
-                0 -> temp.setImageResource(R.drawable.exposed0)
-                1 -> temp.setImageResource(R.drawable.exposed1)
-                2 -> temp.setImageResource(R.drawable.exposed2)
-                3 -> temp.setImageResource(R.drawable.exposed3)
-                4 -> temp.setImageResource(R.drawable.exposed4)
-                5 -> temp.setImageResource(R.drawable.exposed5)
-                6 -> temp.setImageResource(R.drawable.exposed6)
-                7 -> temp.setImageResource(R.drawable.exposed7)
-                8 -> temp.setImageResource(R.drawable.exposed8)
-                9 -> temp.setImageResource(R.drawable.exposed9)
+        if (gameBoard[row][col].gender == Gender.FEMALE) {
+            if (gameBoard[row][col].hasMask) {
+                temp.setImageResource(R.drawable.unexposedflaggeFemale)
+            } else if (!gameBoard[row][col].isExposed)
+                temp.setImageResource(R.drawable.unexposedFemale)
+            else if (gameBoard[row][col].isExposed) {
+                when (gameBoard[row][col].contactNumber) {
+                    0 -> temp.setImageResource(R.drawable.exposed0)
+                    1 -> temp.setImageResource(R.drawable.exposed1)
+                    2 -> temp.setImageResource(R.drawable.exposed2)
+                    3 -> temp.setImageResource(R.drawable.exposed3)
+                    4 -> temp.setImageResource(R.drawable.exposed4)
+                    5 -> temp.setImageResource(R.drawable.exposed5)
+                    6 -> temp.setImageResource(R.drawable.exposed6)
+                    7 -> temp.setImageResource(R.drawable.exposed7)
+                    8 -> temp.setImageResource(R.drawable.exposed8)
+                }
+                if (gameBoard[row][col].isSick)
+                    if (gameBoard[row][col].isAlive)
+                        temp.setImageResource(R.drawable.exposedbomb)
+                    else
+                        temp.setImageResource((R.drawable.exposeddeadFemale))
             }
-            if(gameBoard[row][col].isSick)
-                if (gameBoard[row][col].isAlive)
-                temp.setImageResource(R.drawable.exposedbomb)
-                else
-                temp.setImageResource((R.drawable.exposeddead))
+        } else {
+            if (gameBoard[row][col].hasMask) {
+                temp.setImageResource(R.drawable.unexposedflaggedMale)
+            } else if (!gameBoard[row][col].isExposed)
+                temp.setImageResource(R.drawable.unexposedMale)
+            else if (gameBoard[row][col].isExposed) {
+                when (gameBoard[row][col].contactNumber) {
+                    0 -> temp.setImageResource(R.drawable.exposed0)
+                    1 -> temp.setImageResource(R.drawable.exposed1)
+                    2 -> temp.setImageResource(R.drawable.exposed2)
+                    3 -> temp.setImageResource(R.drawable.exposed3)
+                    4 -> temp.setImageResource(R.drawable.exposed4)
+                    5 -> temp.setImageResource(R.drawable.exposed5)
+                    6 -> temp.setImageResource(R.drawable.exposed6)
+                    7 -> temp.setImageResource(R.drawable.exposed7)
+                    8 -> temp.setImageResource(R.drawable.exposed8)
+                }
+                if (gameBoard[row][col].isSick)
+                    if (gameBoard[row][col].isAlive)
+                        temp.setImageResource(R.drawable.exposedbomb)
+                    else
+                        temp.setImageResource((R.drawable.exposeddeadMale))
+            }
         }
     }
 
@@ -406,7 +430,7 @@ class MainActivity : AppCompatActivity() {
 
 }
 // fuck this shit
-class Person(val row: Int, val col: Int) {
+class Person(val row: Int, val col: Int, genderDecision: Boolean) {
     var isSick = false
     var hasMask = false
     var isExposed = false
@@ -414,4 +438,7 @@ class Person(val row: Int, val col: Int) {
     var isInfectable = true
     var daysInfected = 0
     var isAlive = true
+    val gender = if (genderDecision) Gender.FEMALE else Gender.MALE
 }
+
+enum class Gender {MALE, FEMALE}
