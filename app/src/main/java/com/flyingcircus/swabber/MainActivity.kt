@@ -243,13 +243,13 @@ class MainActivity : AppCompatActivity() {
     }
 
     private fun nightCycle() {
-        // Display a night starting massage
+        // Display a night starting massage (must be called from main UI thread)
         this@MainActivity.runOnUiThread {Toast.makeText(this,">>> A night has begun...! <<<", Toast.LENGTH_SHORT).show()}
 
         // Start an infections cycle!
         infectionsCycle()
 
-        // Display a night ending massage
+        // Display a night ending massage (must be called from main UI thread)
         this@MainActivity.runOnUiThread {Toast.makeText(this,">>> A new day has risen! <<<", Toast.LENGTH_SHORT).show()}
     }
 
@@ -378,6 +378,7 @@ class MainActivity : AppCompatActivity() {
         val minutes = timeInSecs / 60
         val seconds = timeInSecs % 60
         val timer = findViewById<TextView>(R.id.timer)
+        // UI updates must be called from the main UI thread:
         this@MainActivity.runOnUiThread { timer.text = "${minutes.toString().padStart(2, '0')}:${seconds.toString().padStart(2, '0')}" }
     }
 
