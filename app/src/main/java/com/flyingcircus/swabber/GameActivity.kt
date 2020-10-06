@@ -64,7 +64,7 @@ class GameActivity : AppCompatActivity() {
 
     override fun onResume() {
         super.onResume()
-//        pauseButton.performClick() // Add if you want automatic resume, but it pauses on first launch
+        pauseButton.performClick() // Add if you want automatic resume, but it pauses on first launch
     }
 
     private fun initializeBoard() {
@@ -74,6 +74,8 @@ class GameActivity : AppCompatActivity() {
         // reset counters
         masksNum = initialSickNum
         unknownCounter = boardHeight * boardWidth
+        wrongMasks = 0
+        deadNum = 0
 
         // generate random sick people
         val randomIndices = (0 until boardWidth * boardHeight).shuffled().take(initialSickNum)
@@ -193,7 +195,7 @@ class GameActivity : AppCompatActivity() {
         if (gameBoard[row][col].isExposed) return   // Kobi: It is redundant
 
         // Check if the tile contains a sick person
-        if (gameBoard[row][col].isSick) gameOver(false, "Corona")
+        if (gameBoard[row][col].isSick) {gameOver(false, "Corona"); return}
 
         // if not, expose the tile, and possibly it's neighbors
         gameBoard[row][col].isExposed = true
