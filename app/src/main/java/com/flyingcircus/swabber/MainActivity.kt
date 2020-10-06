@@ -25,8 +25,8 @@ class MainActivity : AppCompatActivity() {
     val dayLengthInMilli = 20_000L    // number of (milli)seconds from day to day
     var timeLeftSecs = dayLengthInMilli.toInt() / 1000  // the current time of the timer, initialized to a full day
     val infectionRadius = 2  // the maximal infection radius
-    val Pdeath = 0.05F  // base probability to die
-    val Pinfect = 0.03F // base probability to get infected
+    val Pdeath = 0.01F  // base probability to die
+    val Pinfect = 0.05F // base probability to get infected
     var deadNum = 0  // total number of people that died
     val maxDeadAllowed = 5  // maximal number of dead people allowed before you lose
     var wrongMasks = 0  // the number of masks placed on healthy people
@@ -99,7 +99,9 @@ class MainActivity : AppCompatActivity() {
                 imageview.id = 100 * row + col
 
                 // Set Image Resource
-                imageview.setImageResource(R.drawable.unexposed)
+                if (gameBoard[row - 1][col - 1].gender == Gender.FEMALE) imageview.setImageResource(R.drawable.unexposed_female)
+                else imageview.setImageResource(R.drawable.unexposed_male)
+
 
 
                 // Create a LinearLayout.LayoutParams object for text view
@@ -330,9 +332,9 @@ class MainActivity : AppCompatActivity() {
 
         if (gameBoard[row][col].gender == Gender.FEMALE) {
             if (gameBoard[row][col].hasMask) {
-                temp.setImageResource(R.drawable.unexposedflaggeFemale)
+                temp.setImageResource(R.drawable.unexposedflagged_female)
             } else if (!gameBoard[row][col].isExposed)
-                temp.setImageResource(R.drawable.unexposedFemale)
+                temp.setImageResource(R.drawable.unexposed_female)
             else if (gameBoard[row][col].isExposed) {
                 when (gameBoard[row][col].contactNumber) {
                     0 -> temp.setImageResource(R.drawable.exposed0)
@@ -349,13 +351,13 @@ class MainActivity : AppCompatActivity() {
                     if (gameBoard[row][col].isAlive)
                         temp.setImageResource(R.drawable.exposedbomb)
                     else
-                        temp.setImageResource((R.drawable.exposeddeadFemale))
+                        temp.setImageResource((R.drawable.exposeddead_female))
             }
         } else {
             if (gameBoard[row][col].hasMask) {
-                temp.setImageResource(R.drawable.unexposedflaggedMale)
+                temp.setImageResource(R.drawable.unexposedflagged_male)
             } else if (!gameBoard[row][col].isExposed)
-                temp.setImageResource(R.drawable.unexposedMale)
+                temp.setImageResource(R.drawable.unexposed_male)
             else if (gameBoard[row][col].isExposed) {
                 when (gameBoard[row][col].contactNumber) {
                     0 -> temp.setImageResource(R.drawable.exposed0)
@@ -372,7 +374,7 @@ class MainActivity : AppCompatActivity() {
                     if (gameBoard[row][col].isAlive)
                         temp.setImageResource(R.drawable.exposedbomb)
                     else
-                        temp.setImageResource((R.drawable.exposeddeadMale))
+                        temp.setImageResource((R.drawable.exposeddead_male))
             }
         }
     }
