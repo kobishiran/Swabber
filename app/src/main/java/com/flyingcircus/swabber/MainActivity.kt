@@ -32,6 +32,7 @@ class MainActivity : AppCompatActivity() {
     val maxDeadAllowed = 5  // maximal number of dead people allowed before you lose
     var wrongMasks = 0  // the number of masks placed on healthy people
     val maxWrongMasks = 3 // maximal number of wrong masks before you lose due to economic disaster
+    var gameIsRunning = true
     lateinit var countDownTimer: Timer
 
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -40,12 +41,30 @@ class MainActivity : AppCompatActivity() {
         initializeBoard()
         displayInitBoard(boardHeight,boardWidth)
         clickListener(boardHeight,boardWidth)
+        pauseButton.setOnClickListener {
+            if (gameIsRunning) {countDownTimer.cancel(); gameIsRunning = false; pauseButton.text = "Resume"} else {startTimer(); gameIsRunning = true; pauseButton.text = "Pause"}
+        }
+        newGameButton.setOnClickListener {
+            initializeBoard()
+            gameBoard.forEach { arrayOfPersons -> arrayOfPersons.forEach { person -> updateDisplay(person.row, person.col) } }
+            timeLeftSecs = dayLengthInMilli.toInt() / 1000
+        }
         startTimer()
     }
 
     override fun onDestroy() {
         countDownTimer.cancel()  // make sure the counter is stopped before exiting
         super.onDestroy()
+    }
+
+    override fun onPause() {
+        pauseButton.performClick()
+        super.onPause()
+    }
+
+    override fun onResume() {
+        super.onResume()
+//        pauseButton.performClick() // Add if you want automatic resume, but it pauses on first launch
     }
 
     private fun initializeBoard() {

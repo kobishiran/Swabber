@@ -18,16 +18,30 @@
             app:layout_constraintLeft_toLeftOf="parent"
             app:layout_constraintRight_toRightOf="parent"
             app:layout_constraintTop_toTopOf="parent" android:id="@+id/textView2"/>
-    <TextView
-            android:text="@string/_00_00"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content" android:id="@+id/timer"
-            app:layout_constraintTop_toTopOf="parent"
-            app:layout_constraintBottom_toTopOf="@+id/textView2" app:layout_constraintEnd_toEndOf="parent"
-            app:layout_constraintStart_toStartOf="parent" android:textSize="56sp"
-            android:fontFamily="monospace" android:shadowColor="@color/colorPrimaryDark"
-            android:textAppearance="@style/TextAppearance.AppCompat.Large" android:textColor="#FF0000"
-            android:textStyle="bold"/>
+    <LinearLayout
+            android:orientation="horizontal"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content">
+        <TextView
+                android:text="@string/_00_00"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content" android:id="@+id/timer"
+                app:layout_constraintTop_toTopOf="parent"
+                app:layout_constraintBottom_toTopOf="@+id/textView2" app:layout_constraintEnd_toEndOf="parent"
+                app:layout_constraintStart_toStartOf="parent" android:textSize="56sp"
+                android:fontFamily="monospace" android:shadowColor="@color/colorPrimaryDark"
+                android:textAppearance="@style/TextAppearance.AppCompat.Large" android:textColor="#FF0000"
+                android:textStyle="bold"/>
+        <Button
+                android:text="Pause"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content" android:id="@+id/pauseButton"
+        />
+        <Button
+                android:text="New Game"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content" android:id="@+id/newGameButton" android:layout_weight="1"/>
+    </LinearLayout>
 
 
 </LinearLayout>
