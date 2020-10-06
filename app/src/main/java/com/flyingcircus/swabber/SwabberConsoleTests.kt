@@ -6,7 +6,7 @@ import kotlin.random.Random
 import kotlin.system.exitProcess
 
 var scanner = Scanner(System.`in`)
-lateinit var countdownTimer: Timer
+private lateinit var countdownTimer: Timer
 
 fun main(args: Array<String>) {
     initializeBoard()
@@ -30,7 +30,7 @@ fun main(args: Array<String>) {
     }
 }
 
-fun startTimer() {
+private fun startTimer() {
     countdownTimer = timer("Day Counter", false, initialDelay = 0, 1000L) {
 //        displayTime(timeLeftSecs)
         if (timeLeftSecs == 0) {
@@ -45,29 +45,27 @@ fun startTimer() {
     }
 }
 
-fun displayTime(timeInSecs: Int) {
+private fun displayTime(timeInSecs: Int) {
     val minutes = timeInSecs / 60
     val seconds = timeInSecs % 60
     println("${minutes.toString().padStart(2, '0')}:${seconds.toString().padStart(2, '0')}")
 }
 
 // Initialise global variables
-val initialSickNum = 8
-val boardWidth = 10
-val boardHeight = 10
-var gameBoard = Array(boardHeight) { row -> Array<Person>(boardWidth) { col -> Person(row, col) } }
-var unknownCounter = boardHeight * boardWidth
-var masksNum = initialSickNum * 2
-val dayLengthInMillis = 40_000L
-var timeLeftSecs = dayLengthInMillis.toInt() / 1000
-val infectionRadius = 2
-val Pdeath = 0.01F
-val Pinfect = 0.07F
-//    var matMines = Array(boardHeight) {Array(boardWidth) {0} }
-//    var matMask = Array(boardHeight) {Array(boardWidth) {0} }
+private val initialSickNum = 8
+private val boardWidth = 10
+private val boardHeight = 10
+private var gameBoard = Array(boardHeight) { row -> Array<Person>(boardWidth) { col -> Person(row, col) } }
+private var unknownCounter = boardHeight * boardWidth
+private var masksNum = initialSickNum * 2
+private val dayLengthInMillis = 40_000L
+private var timeLeftSecs = dayLengthInMillis.toInt() / 1000
+private val infectionRadius = 2
+private val Pdeath = 0.01F
+private val Pinfect = 0.07F
 
 
-fun initializeBoard() {
+private fun initializeBoard() {
     // wipe board clean
     gameBoard = Array(boardHeight) { row -> Array<Person>(boardWidth) { col -> Person(row, col) } }
 
@@ -80,7 +78,7 @@ fun initializeBoard() {
     randomIndices.forEach { index -> gameBoard[index / boardWidth][index % boardWidth].isSick = true; gameBoard[index / boardWidth][index % boardWidth].isInfectable = false }
 }
 
-fun clickTile(row: Int, col: Int) {
+private fun clickTile(row: Int, col: Int) {
     // Check if the tile is already exposed or has mask
     if (gameBoard[row][col].isExposed) {
         println("Error: Already exposed!")
@@ -93,7 +91,7 @@ fun clickTile(row: Int, col: Int) {
 
 }
 
-fun exposeTile(row: Int, col: Int) {
+private fun exposeTile(row: Int, col: Int) {
     // if tile is already exposed, return
     if (gameBoard[row][col].isExposed) return
 
@@ -103,10 +101,10 @@ fun exposeTile(row: Int, col: Int) {
     // if not, expose the tile, and possibly it's neighbors
     gameBoard[row][col].isExposed = true
     unknownCounter--
-    gameBoard[row][col].cantactNumber = countNeighbors(row, col)
+    gameBoard[row][col].contactNumber = countNeighbors(row, col)
 
     // if number of neighbors is zero, expose all the neighbors too
-    if (gameBoard[row][col].cantactNumber == 0) {
+    if (gameBoard[row][col].contactNumber == 0) {
         if (row + 1 < boardHeight && col + 1 < boardWidth) exposeTile(row + 1, col + 1)
         if (row + 1 < boardHeight) exposeTile(row + 1, col)
         if (row + 1 < boardHeight && col - 1 >= 0) exposeTile(row + 1, col - 1)
@@ -132,7 +130,7 @@ fun exposeTile(row: Int, col: Int) {
     if (row - 1 >= 0 && col - 1 >= 0) gameBoard[row - 1][col - 1].isInfectable = false
 }
 
-fun countNeighbors(row: Int, col: Int): Int {
+private fun countNeighbors(row: Int, col: Int): Int {
     var contactNumber = 0
     if (row + 1 < boardHeight && col + 1 < boardWidth) contactNumber += gameBoard[row + 1][col + 1].isSick.toInt()
     if (row + 1 < boardHeight) contactNumber += gameBoard[row + 1][col].isSick.toInt()
@@ -146,7 +144,7 @@ fun countNeighbors(row: Int, col: Int): Int {
 
 }
 
-fun holdTile(row: Int, col: Int) {
+private fun holdTile(row: Int, col: Int) {
     if (!gameBoard[row][col].isExposed) { // make sure the tile is not already exposed
         when (gameBoard[row][col].hasMask) {
             true -> {  // if already has mask, remove it and increment mask counter
@@ -171,7 +169,7 @@ fun holdTile(row: Int, col: Int) {
     }
 }
 
-fun nightCycle() {
+private fun nightCycle() {
     // Display a night starting massage
     println("\n------- The Night has begun...! -------\n")
 
@@ -186,7 +184,7 @@ fun nightCycle() {
 //    printExposedBoard()
 }
 
-fun infectionsCycle() {
+private fun infectionsCycle() {
     var deadNum = 0
     var infectedNum = 0
 
@@ -222,7 +220,7 @@ fun infectionsCycle() {
     }
 }
 
-fun infectNeighbors(row: Int, col: Int, r: Int): Int {
+private fun infectNeighbors(row: Int, col: Int, r: Int): Int {
     var infected = 0
     for (rowDiff in r downTo -r) {
         if (row + rowDiff >= boardHeight || row + rowDiff < 0) continue  // boundary condition
@@ -237,7 +235,7 @@ fun infectNeighbors(row: Int, col: Int, r: Int): Int {
     return infected
 }
 
-fun infectionChance(row: Int, col: Int, r: Int): Int {
+private fun infectionChance(row: Int, col: Int, r: Int): Int {
     // TODO: change infection probability mechanism here
     val gotInfected = Random.nextFloat() <= Pinfect / r
     if (gotInfected) {
@@ -250,14 +248,14 @@ fun infectionChance(row: Int, col: Int, r: Int): Int {
 
 //////////// Aux Functions ////////////
 
-fun updateDisplay(row: Int, col: Int) {
+private fun updateDisplay(row: Int, col: Int) {
     // TODO("Not yet implemented")
 }
 
-fun gameOver(victory: Boolean) {
+private fun gameOver(victory: Boolean) {
     for (row in 0 until boardHeight) {
         for (col in 0 until boardWidth) {
-            gameBoard[row][col].cantactNumber = countNeighbors(row, col)
+            gameBoard[row][col].contactNumber = countNeighbors(row, col)
             gameBoard[row][col].isExposed = true
         }
     }
@@ -270,12 +268,12 @@ fun gameOver(victory: Boolean) {
     exitProcess(1)
 }
 
-fun checkVictory() {
+private fun checkVictory() {
     if (unknownCounter == 0) gameOver(true)
 }
 
 // extension function to turn bool to int
-fun Boolean.toInt() = if (this) 1 else 0
+private fun Boolean.toInt() = if (this) 1 else 0
 
 
 ///////// Added functions for console interaction /////////
@@ -299,7 +297,7 @@ fun printBoard() {
                 if (currPerson.isAlive) {
                     toPrint = when (currPerson.isSick) {
                         true -> "*"
-                        false -> currPerson.cantactNumber.toString()
+                        false -> currPerson.contactNumber.toString()
                     }
 
                 } else toPrint = "X"

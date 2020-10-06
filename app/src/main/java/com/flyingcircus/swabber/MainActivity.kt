@@ -1,37 +1,41 @@
 package com.flyingcircus.swabber
 
 import android.graphics.Color
-import android.media.Image
 import androidx.appcompat.app.AppCompatActivity
 import android.os.Bundle
-import android.os.CountDownTimer
-import android.view.View
 import android.widget.ImageView
 import android.widget.LinearLayout
 import android.widget.TextView
 import android.widget.Toast
 import kotlinx.android.synthetic.main.activity_main.*
+import java.util.*
+import kotlin.concurrent.timer
+import kotlin.random.Random
 
 
 class MainActivity : AppCompatActivity() {
 
     // Initialise global variables
-    val initialSickNum = 10         // number of "mines"
+    val initialSickNum = 20         // number of "mines"
     val boardHeight = 16             // number of rows
     val boardWidth = 10             // number of columns
     var gameBoard = Array(boardHeight) { row -> Array<Person>(boardWidth) { col -> Person(row, col) } }
     var unknownCounter = boardHeight * boardWidth // number of "tiles" not "exposed" neither "flagged"
     var masksNum = initialSickNum   // number of "flags"
-    val dayLengthMilli = 30_000L    // number of (milli)seconds from day to day
-    lateinit var countDownTimer: CountDownTimer
+    val dayLengthInMilli = 20_000L    // number of (milli)seconds from day to day
+    var timeLeftSecs = dayLengthInMilli.toInt() / 1000  // the current time of the timer, initialized to a full day
+    val infectionRadius = 2  // the maximal infection radius
+    val Pdeath = 0.003F  // base probability to die
+    val Pinfect = 0.03F // base probability to get infected
+    lateinit var countDownTimer: Timer
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_main)
         initializeBoard()
         displayInitBoard(boardHeight,boardWidth)
-        startTimer(dayLengthMilli)
         clickListener(boardHeight,boardWidth)
+        startTimer()
     }
 
     override fun onDestroy() {
@@ -49,7 +53,7 @@ class MainActivity : AppCompatActivity() {
 
         // generate random sick people
         val randomIndices = (0 until boardWidth * boardHeight).shuffled().take(initialSickNum)
-        randomIndices.forEach { index -> gameBoard[index / boardWidth][index % boardWidth].isSick = true }
+        randomIndices.forEach { index -> gameBoard[index / boardWidth][index % boardWidth].isSick = true; gameBoard[index / boardWidth][index % boardWidth].isInfectable = false  }
     }
 
     private fun displayInitBoard(boardHeight: Int, boardWidth: Int){
@@ -133,10 +137,10 @@ class MainActivity : AppCompatActivity() {
             for (col in 1..boardWidth) {
                 val temp: ImageView = findViewById(100 * row + col)
                   temp.setOnClickListener() {
-                      clickTile(row-1, col-1)
+                      clickTile(row - 1, col - 1)
                   }
                 temp.setOnLongClickListener() {
-                    holdTile(row-1, col-1)
+                    holdTile(row - 1, col - 1)
                     return@setOnLongClickListener true
                 }
             }
@@ -169,10 +173,10 @@ class MainActivity : AppCompatActivity() {
         // if not, expose the tile, and possibly it's neighbors
         gameBoard[row][col].isExposed = true
         unknownCounter--
-        gameBoard[row][col].cantactNumber = countNeighbors(row, col)
+        gameBoard[row][col].contactNumber = countNeighbors(row, col)
 
         // if number of neighbors is zero, expose all the neighbors too
-        if (gameBoard[row][col].cantactNumber == 0) {
+        if (gameBoard[row][col].contactNumber == 0) {
             if (row + 1 < boardHeight && col + 1 < boardWidth && !gameBoard[row+1][col+1].hasMask)   exposeTile(row + 1, col + 1)
             if (row + 1 < boardHeight && !gameBoard[row+1][col].hasMask)                           exposeTile(row + 1, col)
             if (row + 1 < boardHeight && col - 1 >= 0 && !gameBoard[row+1][col-1].hasMask)           exposeTile(row + 1, col - 1)
@@ -238,6 +242,78 @@ class MainActivity : AppCompatActivity() {
         }
     }
 
+    private fun nightCycle() {
+        // Display a night starting massage
+        this@MainActivity.runOnUiThread {Toast.makeText(this,">>> A night has begun...! <<<", Toast.LENGTH_SHORT).show()}
+
+        // Start an infections cycle!
+        infectionsCycle()
+
+        // Display a night ending massage
+        this@MainActivity.runOnUiThread {Toast.makeText(this,">>> A new day has risen! <<<", Toast.LENGTH_SHORT).show()}
+    }
+
+    private fun infectionsCycle() {
+        var deadNum = 0
+        var infectedNum = 0
+
+        // increment the number of days each sick person was infected
+        gameBoard.forEach { arrayOfPersons -> arrayOfPersons.forEach { person -> if (person.isSick && !person.hasMask && person.isAlive) person.daysInfected++ } }
+        // TODO: remove the hasMask condition to allow people to grow sicker even with a mask? (only matters if the mask is removed at a later time)
+
+        // find every sick person that has no mask and was infected at least 1 full day
+        gameBoard.forEach { arrayOfPersons ->
+            arrayOfPersons.forEach { person ->
+                if (person.isSick && !person.hasMask && person.isAlive && person.daysInfected >= 1) {  // people who get sick during this night will have daysInfected = 0, and so will not infect others yet
+
+                    // the sick person might infect his neighbors, depending on their distance from him
+                    for (r in 1..infectionRadius) {
+                        infectedNum += infectNeighbors(person.row, person.col, r)
+                        // TODO: if infectedNum > N, break?
+                    }
+
+                    // also, the sick person might die, depending on how long he has been sick
+                    val heDies = Random.nextFloat() <= Pdeath * person.daysInfected // TODO: change death probability mechanism here
+                    if (heDies) {
+                        person.isAlive = false
+                        person.isExposed = true
+                        person.isInfectable = false
+                        deadNum++
+                        unknownCounter--
+
+                        updateDisplay(person.row, person.col)
+                        // TODO: Update the graphic dead counter
+                    }
+                }
+            }
+        }
+    }
+
+    private fun infectNeighbors(row: Int, col: Int, r: Int): Int {
+        var infected = 0
+        for (rowDiff in r downTo -r) {
+            if (row + rowDiff >= boardHeight || row + rowDiff < 0) continue  // boundary condition
+
+            if (col + r in 0 until boardWidth && gameBoard[row + rowDiff][col + r].isInfectable && !gameBoard[row + rowDiff][col + r].hasMask) infected += infectionChance(row + rowDiff, col + r, r)
+            if (col - r in 0 until boardWidth && gameBoard[row + rowDiff][col - r].isInfectable && !gameBoard[row + rowDiff][col - r].hasMask) infected += infectionChance(row + rowDiff, col - r, r)
+            if (rowDiff == r || rowDiff == -r) for (colDiff in r - 1 downTo (1 - r)) {
+                if (col + colDiff >= boardWidth || col + colDiff < 0) continue  // boundary condition
+                if (gameBoard[row + rowDiff][col + colDiff].isInfectable && !gameBoard[row + rowDiff][col + colDiff].hasMask) infected += infectionChance(row + rowDiff, col + colDiff, r)
+            }
+        }
+        return infected
+    }
+
+    private fun infectionChance(row: Int, col: Int, r: Int): Int {
+        // TODO: change infection probability mechanism here
+        val gotInfected = Random.nextFloat() <= Pinfect / r
+        if (gotInfected) {
+            gameBoard[row][col].isSick = true
+            gameBoard[row][col].isInfectable = false
+        }
+        return gotInfected.toInt()
+    }
+
     private fun updateDisplay(row: Int, col: Int) {
 
         // go to the unique id of that element
@@ -248,7 +324,7 @@ class MainActivity : AppCompatActivity() {
         } else if (!gameBoard[row][col].isExposed)
             temp.setImageResource(R.drawable.unexposed)
           else if (gameBoard[row][col].isExposed) {
-            when (gameBoard[row][col].cantactNumber){
+            when (gameBoard[row][col].contactNumber){
                 0 -> temp.setImageResource(R.drawable.exposed0)
                 1 -> temp.setImageResource(R.drawable.exposed1)
                 2 -> temp.setImageResource(R.drawable.exposed2)
@@ -261,7 +337,10 @@ class MainActivity : AppCompatActivity() {
                 9 -> temp.setImageResource(R.drawable.exposed9)
             }
             if(gameBoard[row][col].isSick)
+                if (gameBoard[row][col].isAlive)
                 temp.setImageResource(R.drawable.exposedbomb)
+                else
+                temp.setImageResource((R.drawable.exposeddead))
         }
     }
 
@@ -273,40 +352,42 @@ class MainActivity : AppCompatActivity() {
             Toast.makeText(this,"Loser!", Toast.LENGTH_SHORT).show()
     }
 
-    fun checkVictory() {
+    private fun checkVictory() {
         if (unknownCounter == 0) gameOver(true)
     }
 
     // extension function to turn bool to int
     fun Boolean.toInt() = if (this) 1 else 0
 
-    private fun startTimer(timeToCountInMilli: Long) {
-        countDownTimer = object : CountDownTimer(timeToCountInMilli, 1000L) {
-
-            // every second, update the timer textView
-            override fun onTick(millisUntilFinished: Long) {
-                val minutes = millisUntilFinished / 60_000
-                val seconds = (millisUntilFinished / 1000) % 60
-                val timer = findViewById<TextView>(R.id.timer)
-                timer.text = "${minutes.toString().padStart(2, '0')}:${seconds.toString().padStart(2, '0')}"
-            }
-
-            // when the timer finishes, start a night cycle, and then restart the timer
-            override fun onFinish() {
-                countDownTimer.cancel()
-                // TODO: transition to night cycle
-                startTimer(dayLengthMilli)
+    private fun startTimer() {
+        Toast.makeText(this,"Starting Timer", Toast.LENGTH_SHORT).show()
+        countDownTimer = timer("Day Counter", false, initialDelay = 0, 1000L) {
+            displayTime(timeLeftSecs)
+            if (timeLeftSecs == 0) {
+                nightCycle()
+                timeLeftSecs = dayLengthInMilli.toInt() / 1000
+                displayTime(timeLeftSecs)
+                timeLeftSecs--
+            } else {
+                timeLeftSecs--
             }
         }
-        countDownTimer.start()
     }
+
+    private fun displayTime(timeInSecs: Int) {
+        val minutes = timeInSecs / 60
+        val seconds = timeInSecs % 60
+        val timer = findViewById<TextView>(R.id.timer)
+        this@MainActivity.runOnUiThread { timer.text = "${minutes.toString().padStart(2, '0')}:${seconds.toString().padStart(2, '0')}" }
+    }
+
 }
 // fuck this shit
 class Person(val row: Int, val col: Int) {
     var isSick = false
     var hasMask = false
     var isExposed = false
-    var cantactNumber = -1
+    var contactNumber = -1
     var isInfectable = true
     var daysInfected = 0
     var isAlive = true
