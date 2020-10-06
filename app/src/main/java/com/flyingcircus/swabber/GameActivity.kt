@@ -14,7 +14,7 @@ import kotlin.concurrent.timer
 import kotlin.random.Random
 
 
-class MainActivity : AppCompatActivity() {
+class GameActivity : AppCompatActivity() {
 
     // Initialise global variables
     val initialSickNum = 20         // number of "mines"
@@ -185,7 +185,6 @@ class MainActivity : AppCompatActivity() {
             exposeTile(row, col)
             checkVictory()
         }
-
     }
 
     private fun exposeTile(row: Int, col: Int) {
@@ -274,19 +273,19 @@ class MainActivity : AppCompatActivity() {
 
     private fun nightCycle() {
         // Display a night starting massage (must be called from main UI thread)
-        this@MainActivity.runOnUiThread {Toast.makeText(this,">>> A night has begun...! <<<", Toast.LENGTH_SHORT).show()}
+        this@GameActivity.runOnUiThread {Toast.makeText(this,">>> A night has begun...! <<<", Toast.LENGTH_SHORT).show()}
 
         // Start an infections cycle!
         infectionsCycle()
 
         // Check if too many people died during the night
-        this@MainActivity.runOnUiThread { checkLosingByDeath() }
+        this@GameActivity.runOnUiThread { checkLosingByDeath() }
 
         // if not, check if victory is reached due to people dying
-        this@MainActivity.runOnUiThread { checkVictory() }
+        this@GameActivity.runOnUiThread { checkVictory() }
 
         // Display a night ending massage (must be called from main UI thread)
-        this@MainActivity.runOnUiThread {Toast.makeText(this,">>> A new day has risen! <<<", Toast.LENGTH_SHORT).show()}
+        this@GameActivity.runOnUiThread {Toast.makeText(this,">>> A new day has risen! <<<", Toast.LENGTH_SHORT).show()}
     }
 
     private fun infectionsCycle() {
@@ -466,7 +465,7 @@ class MainActivity : AppCompatActivity() {
         val seconds = timeInSecs % 60
         val timer = findViewById<TextView>(R.id.timer)
         // UI updates must be called from the main UI thread:
-        this@MainActivity.runOnUiThread { timer.text = "${minutes.toString().padStart(2, '0')}:${seconds.toString().padStart(2, '0')}" }
+        this@GameActivity.runOnUiThread { timer.text = "${minutes.toString().padStart(2, '0')}:${seconds.toString().padStart(2, '0')}" }
     }
 
 }
