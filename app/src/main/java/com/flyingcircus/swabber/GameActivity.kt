@@ -58,7 +58,7 @@ class GameActivity : AppCompatActivity() {
     }
 
     override fun onPause() {
-        pauseButton.performClick()
+        if (gameIsRunning) pauseButton.performClick()
         super.onPause()
     }
 
