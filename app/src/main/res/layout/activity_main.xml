@@ -33,13 +33,13 @@
                 android:textAppearance="@style/TextAppearance.AppCompat.Large" android:textColor="#FF0000"
                 android:textStyle="bold"/>
         <Button
-                android:text="Pause"
+                android:text="@string/pause"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content" android:id="@+id/pauseButton"
         />
         <Button
-                android:text="New Game"
-                android:layout_width="wrap_content"
+                android:text="@string/new_game"
+                android:layout_width="0dp"
                 android:layout_height="wrap_content" android:id="@+id/newGameButton" android:layout_weight="1"/>
     </LinearLayout>
 
