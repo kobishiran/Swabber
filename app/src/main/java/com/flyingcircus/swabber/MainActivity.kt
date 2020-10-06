@@ -25,8 +25,12 @@ class MainActivity : AppCompatActivity() {
     val dayLengthInMilli = 20_000L    // number of (milli)seconds from day to day
     var timeLeftSecs = dayLengthInMilli.toInt() / 1000  // the current time of the timer, initialized to a full day
     val infectionRadius = 2  // the maximal infection radius
-    val Pdeath = 0.003F  // base probability to die
+    val Pdeath = 0.05F  // base probability to die
     val Pinfect = 0.03F // base probability to get infected
+    var deadNum = 0  // total number of people that died
+    val maxDeadAllowed = 5  // maximal number of dead people allowed before you lose
+    var wrongMasks = 0  // the number of masks placed on healthy people
+    val maxWrongMasks = 3 // maximal number of wrong masks before you lose due to economic disaster
     lateinit var countDownTimer: Timer
 
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -168,7 +172,7 @@ class MainActivity : AppCompatActivity() {
         if (gameBoard[row][col].isExposed) return   // Kobi: It is redundant
 
         // Check if the tile contains a sick person
-        if (gameBoard[row][col].isSick) gameOver(false)
+        if (gameBoard[row][col].isSick) gameOver(false, "Corona")
 
         // if not, expose the tile, and possibly it's neighbors
         gameBoard[row][col].isExposed = true
@@ -222,12 +226,15 @@ class MainActivity : AppCompatActivity() {
                     gameBoard[row][col].hasMask = false
                     masksNum++
                     unknownCounter++
+                    if (!gameBoard[row][col].isSick) wrongMasks--
                 }
                 false -> {  // if not, put on a mask if masks are available or show error
                     if (masksNum > 0) {
                         gameBoard[row][col].hasMask = true
                         masksNum--
                         unknownCounter--
+                        if (!gameBoard[row][col].isSick) wrongMasks++
+                        checkLosingByEconomy()
                     } else {
                         // TODO: Show error: Not enough masks!
                         Toast.makeText(this,"Not enough masks!", Toast.LENGTH_SHORT).show()
@@ -249,12 +256,14 @@ class MainActivity : AppCompatActivity() {
         // Start an infections cycle!
         infectionsCycle()
 
+        // Check if too many people died during the night
+        this@MainActivity.runOnUiThread { checkLosingByDeath() }
+
         // Display a night ending massage (must be called from main UI thread)
         this@MainActivity.runOnUiThread {Toast.makeText(this,">>> A new day has risen! <<<", Toast.LENGTH_SHORT).show()}
     }
 
     private fun infectionsCycle() {
-        var deadNum = 0
         var infectedNum = 0
 
         // increment the number of days each sick person was infected
@@ -344,16 +353,29 @@ class MainActivity : AppCompatActivity() {
         }
     }
 
-    private fun gameOver(victory: Boolean) {
-        // TODO("Not yet implemented")
+    private fun gameOver(victory: Boolean, reason: String) {
+        // TODO: add transitions to end activities
         if(victory)
             Toast.makeText(this,"Winner!", Toast.LENGTH_SHORT).show()
-        else
-            Toast.makeText(this,"Loser!", Toast.LENGTH_SHORT).show()
+        else when (reason) {
+            "Death" -> Toast.makeText(this,"You let too many people die! You LOSE!!", Toast.LENGTH_SHORT).show()
+            "Economy" -> Toast.makeText(this,"The economy collapsed! you LOSE!", Toast.LENGTH_SHORT).show()
+            "Corona" -> Toast.makeText(this,"You got infected with Corona! Loser!", Toast.LENGTH_SHORT).show()
+            else -> Toast.makeText(this,"Loser!", Toast.LENGTH_SHORT).show()
+        }
+
+    }
+
+    private fun checkLosingByDeath() {
+        if (deadNum >= maxDeadAllowed) gameOver(victory = false, reason = "Death")
+    }
+
+    private fun checkLosingByEconomy() {
+        if (wrongMasks >= maxWrongMasks) gameOver(victory = false, reason = "Economy")
     }
 
     private fun checkVictory() {
-        if (unknownCounter == 0) gameOver(true)
+        if (unknownCounter == 0) gameOver(true, "Yay!") // the reason argument is not needed here
     }
 
     // extension function to turn bool to int
