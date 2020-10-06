@@ -263,6 +263,9 @@ class MainActivity : AppCompatActivity() {
         // Check if too many people died during the night
         this@MainActivity.runOnUiThread { checkLosingByDeath() }
 
+        // if not, check if victory is reached due to people dying
+        this@MainActivity.runOnUiThread { checkVictory() }
+
         // Display a night ending massage (must be called from main UI thread)
         this@MainActivity.runOnUiThread {Toast.makeText(this,">>> A new day has risen! <<<", Toast.LENGTH_SHORT).show()}
     }
@@ -296,7 +299,6 @@ class MainActivity : AppCompatActivity() {
 
                         updateDisplay(person.row, person.col)
                         // TODO: Update the graphic dead counter
-                        checkVictory()
                     }
                 }
             }
