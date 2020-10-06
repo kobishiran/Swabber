@@ -250,6 +250,7 @@ class MainActivity : AppCompatActivity() {
             // TODO: Show error: Already exposed!
             Toast.makeText(this,"Already exposed!", Toast.LENGTH_SHORT).show()
         }
+        checkVictory()
     }
 
     private fun nightCycle() {
@@ -295,6 +296,7 @@ class MainActivity : AppCompatActivity() {
 
                         updateDisplay(person.row, person.col)
                         // TODO: Update the graphic dead counter
+                        checkVictory()
                     }
                 }
             }
