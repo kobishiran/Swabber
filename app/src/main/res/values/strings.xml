@@ -1,7 +1,17 @@
 <resources>
     <string name="app_name">Swabber</string>
     <string name="_00_00">00:00</string>
-    <string name="welcome_to_swabber">Swabber</string>
+    <string name="swabber">Swabber</string>
     <string name="pause">Pause</string>
-    <string name="new_game">New Game</string>
+    <string name="new_game">NEW GAME</string>
+    <string name="shop">shop</string>
+    <string name="custom_game">CUSTOM GAME</string>
+    <string name="select_game_mode">SELECT GAME MODE:</string>
+    <string name="instructions">INSTRUCTIONS</string>
+    <string name="outbreak">OUTBREAK</string>
+    <string name="epidemic">EPIDEMIC</string>
+    <string name="pandemic">PANDEMIC</string>
+    <string name="start">START</string>
+    <string name="high_scores">HIGH SCORES</string>
+    <string name="enter_your_name">ENTER YOUR NAME</string>
 </resources>
