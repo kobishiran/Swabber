@@ -1,5 +1,6 @@
 package com.flyingcircus.swabber
 
+import android.content.Intent
 import android.graphics.Color
 import androidx.appcompat.app.AppCompatActivity
 import android.os.Bundle
@@ -231,16 +232,16 @@ class MainActivity : AppCompatActivity() {
                     if (!gameBoard[row][col].isSick) wrongMasks--
                 }
                 false -> {  // if not, put on a mask if masks are available or show error
-                    if (masksNum > 0) {
+//                    if (masksNum > 0) {
                         gameBoard[row][col].hasMask = true
                         masksNum--
                         unknownCounter--
                         if (!gameBoard[row][col].isSick) wrongMasks++
                         checkLosingByEconomy()
-                    } else {
-                        // TODO: Show error: Not enough masks!
-                        Toast.makeText(this,"Not enough masks!", Toast.LENGTH_SHORT).show()
-                    }
+//                    } else {
+                         // TODO: Show error: Not enough masks!
+//                        Toast.makeText(this,"Not enough masks!", Toast.LENGTH_SHORT).show()
+//                    }
                 }
             }
             updateDisplay(row, col)
@@ -381,13 +382,26 @@ class MainActivity : AppCompatActivity() {
 
     private fun gameOver(victory: Boolean, reason: String) {
         // TODO: add transitions to end activities
+//        countDownTimer.cancel()
         if(victory)
             Toast.makeText(this,"Winner!", Toast.LENGTH_SHORT).show()
         else when (reason) {
-            "Death" -> Toast.makeText(this,"You let too many people die! You LOSE!!", Toast.LENGTH_SHORT).show()
-            "Economy" -> Toast.makeText(this,"The economy collapsed! you LOSE!", Toast.LENGTH_SHORT).show()
-            "Corona" -> Toast.makeText(this,"You got infected with Corona! Loser!", Toast.LENGTH_SHORT).show()
-            else -> Toast.makeText(this,"Loser!", Toast.LENGTH_SHORT).show()
+            "Death" -> {
+                Toast.makeText(this,"You let too many people die! You LOSE!!", Toast.LENGTH_SHORT).show()
+                startActivity(Intent(this, DeathScreen::class.java))
+            };
+            "Economy" -> {
+                Toast.makeText(this,"The economy collapsed! you LOSE!", Toast.LENGTH_SHORT).show()
+                startActivity(Intent(this, DeathScreen::class.java))
+            }
+            "Corona" -> {
+                Toast.makeText(this,"You got infected with Corona! Loser!", Toast.LENGTH_SHORT).show()
+                startActivity(Intent(this, DeathScreen::class.java))
+            }
+            else -> {
+                Toast.makeText(this,"Loser!", Toast.LENGTH_SHORT).show()
+                startActivity(Intent(this, WinScreen::class.java))
+            }
         }
 
     }
