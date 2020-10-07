@@ -34,6 +34,7 @@ class GameActivity : AppCompatActivity() {
     var wrongMasks = 0  // the number of masks placed on healthy people
 //    val maxWrongMasks = 3 // maximal number of wrong masks before you lose due to economic disaster
     var gameIsRunning = true
+    var daysCounter = 1
     lateinit var countDownTimer: Timer
 
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -90,6 +91,10 @@ class GameActivity : AppCompatActivity() {
         timeLeftSecs = difficulty.dayLengthInMilli.toInt() / 1000
         displayTime(timeLeftSecs)
         gameIsRunning = true
+        daysCounter = 1
+
+        // update Days Counter display
+        textDayCounter.text = "Day $daysCounter"
 
         // generate random sick people
         val randomIndices = (0 until difficulty.boardWidth * difficulty.boardHeight).shuffled().take(difficulty.initialSickNum)
@@ -300,6 +305,9 @@ class GameActivity : AppCompatActivity() {
 
         // if not, check if victory is reached due to people dying
         this@GameActivity.runOnUiThread { checkVictory() }
+
+        daysCounter++
+        textDayCounter.text = "Day $daysCounter"
 
         // Display a night ending massage (must be called from main UI thread)
         this@GameActivity.runOnUiThread {Toast.makeText(this,">>> A new day has risen! <<<", Toast.LENGTH_SHORT).show()}
