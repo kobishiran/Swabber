@@ -17,39 +17,49 @@ import kotlin.random.Random
 class GameActivity : AppCompatActivity() {
 
     // Initialise global variables
-    val initialSickNum = 20         // number of "mines"
-    val boardHeight = 16             // number of rows
-    val boardWidth = 10             // number of columns
+    lateinit var difficulty: Difficulty
+//    val initialSickNum = 20         // number of "mines"
+//    val boardHeight = 16             // number of rows
+//    val boardWidth = 10             // number of columns
     lateinit var gameBoard: Array<Array<Person>>
-    var unknownCounter = boardHeight * boardWidth // number of "tiles" not "exposed" neither "flagged"
-    var masksNum = initialSickNum   // number of "flags"
-    val dayLengthInMilli = 20_000L    // number of (milli)seconds from day to day
-    var timeLeftSecs = dayLengthInMilli.toInt() / 1000  // the current time of the timer, initialized to a full day
-    val infectionRadius = 2  // the maximal infection radius
-    val Pdeath = 0.01F  // base probability to die
-    val Pinfect = 0.05F // base probability to get infected
+    var unknownCounter = 0 // number of "tiles" not "exposed" neither "flagged"
+    var masksNum = 0   // number of "flags"
+//    val dayLengthInMilli = 20_000L    // number of (milli)seconds from day to day
+    var timeLeftSecs = 0  // the current time of the timer, initialized to a full day
+//    val infectionRadius = 2  // the maximal infection radius
+//    val Pdeath = 0.01F  // base probability to die
+//    val Pinfect = 0.05F // base probability to get infected
     var deadNum = 0  // total number of people that died
-    val maxDeadAllowed = 5  // maximal number of dead people allowed before you lose
+//    val maxDeadAllowed = 5  // maximal number of dead people allowed before you lose
     var wrongMasks = 0  // the number of masks placed on healthy people
-    val maxWrongMasks = 3 // maximal number of wrong masks before you lose due to economic disaster
+//    val maxWrongMasks = 3 // maximal number of wrong masks before you lose due to economic disaster
     var gameIsRunning = true
     lateinit var countDownTimer: Timer
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_main)
+
+        // get difficulty level
+        difficulty = intent.getSerializableExtra("Difficulty") as Difficulty
+
         initializeBoard()
-        displayInitBoard(boardHeight,boardWidth)
-        clickListener(boardHeight,boardWidth)
+        displayInitBoard(difficulty.boardHeight,difficulty.boardWidth)
+        clickListener(difficulty.boardHeight,difficulty.boardWidth)
         pauseButton.setOnClickListener {
             if (gameIsRunning) {countDownTimer.cancel(); gameIsRunning = false; pauseButton.text = "Resume"} else {startTimer(); gameIsRunning = true; pauseButton.text = "Pause"}
         }
         newGameButton.setOnClickListener {
+            countDownTimer.cancel()
+            pauseButton.text = "Pause"
             initializeBoard()
             gameBoard.forEach { arrayOfPersons -> arrayOfPersons.forEach { person -> updateDisplay(person.row, person.col) } }
-            timeLeftSecs = dayLengthInMilli.toInt() / 1000
+            timeLeftSecs = difficulty.dayLengthInMilli.toInt() / 1000
+            displayTime(timeLeftSecs)
+            startTimer()
         }
         startTimer()
+        pauseButton.performClick()
     }
 
     override fun onDestroy() {
@@ -68,18 +78,22 @@ class GameActivity : AppCompatActivity() {
     }
 
     private fun initializeBoard() {
+
         // wipe board clean
-        gameBoard = Array(boardHeight) { row -> Array<Person>(boardWidth) { col -> Person(row, col, Random.nextFloat() <= 0.5)} }
+        gameBoard = Array(difficulty.boardHeight) { row -> Array<Person>(difficulty.boardWidth) { col -> Person(row, col, Random.nextFloat() <= 0.5)} }
 
         // reset counters
-        masksNum = initialSickNum
-        unknownCounter = boardHeight * boardWidth
+        masksNum = difficulty.initialSickNum  // number of "flags"
+        unknownCounter = difficulty.boardHeight * difficulty.boardWidth
         wrongMasks = 0
         deadNum = 0
+        timeLeftSecs = difficulty.dayLengthInMilli.toInt() / 1000
+        displayTime(timeLeftSecs)
+        gameIsRunning = true
 
         // generate random sick people
-        val randomIndices = (0 until boardWidth * boardHeight).shuffled().take(initialSickNum)
-        randomIndices.forEach { index -> gameBoard[index / boardWidth][index % boardWidth].isSick = true; gameBoard[index / boardWidth][index % boardWidth].isInfectable = false  }
+        val randomIndices = (0 until difficulty.boardWidth * difficulty.boardHeight).shuffled().take(difficulty.initialSickNum)
+        randomIndices.forEach { index -> gameBoard[index / difficulty.boardWidth][index % difficulty.boardWidth].isSick = true; gameBoard[index / difficulty.boardWidth][index % difficulty.boardWidth].isInfectable = false  }
     }
 
     private fun displayInitBoard(boardHeight: Int, boardWidth: Int){
@@ -194,49 +208,50 @@ class GameActivity : AppCompatActivity() {
         // if tile is already exposed, return
         if (gameBoard[row][col].isExposed) return   // Kobi: It is redundant
 
-        // Check if the tile contains a sick person
-        if (gameBoard[row][col].isSick) {gameOver(false, "Corona"); return}
-
         // if not, expose the tile, and possibly it's neighbors
         gameBoard[row][col].isExposed = true
         unknownCounter--
         gameBoard[row][col].contactNumber = countNeighbors(row, col)
-
-        // if number of neighbors is zero, expose all the neighbors too
-        if (gameBoard[row][col].contactNumber == 0) {
-            if (row + 1 < boardHeight && col + 1 < boardWidth && !gameBoard[row+1][col+1].hasMask)   exposeTile(row + 1, col + 1)
-            if (row + 1 < boardHeight && !gameBoard[row+1][col].hasMask)                           exposeTile(row + 1, col)
-            if (row + 1 < boardHeight && col - 1 >= 0 && !gameBoard[row+1][col-1].hasMask)           exposeTile(row + 1, col - 1)
-            if (col + 1 < boardWidth && !gameBoard[row][col+1].hasMask)                           exposeTile(row, col + 1)
-            if (col - 1 >= 0 && !gameBoard[row][col-1].hasMask)                                   exposeTile(row, col - 1)
-            if (row - 1 >= 0 && col + 1 < boardWidth && !gameBoard[row-1][col+1].hasMask)           exposeTile(row - 1, col + 1)
-            if (row - 1 >= 0 && !gameBoard[row-1][col].hasMask)                                   exposeTile(row - 1, col)
-            if (row - 1 >= 0 && col - 1 >= 0 && !gameBoard[row-1][col-1].hasMask)                   exposeTile(row - 1, col - 1)
-        }
+        gameBoard[row][col].isInfectable = false
 
         // update the display of the tile
         updateDisplay(row, col)
 
+        // Check if the tile contains a sick person
+        if (gameBoard[row][col].isSick) {gameOver(false, "Corona"); return}
+
+        // if number of neighbors is zero, expose all the neighbors too
+        if (gameBoard[row][col].contactNumber == 0) {
+            if (row + 1 < difficulty.boardHeight && col + 1 < difficulty.boardWidth && !gameBoard[row+1][col+1].hasMask)   exposeTile(row + 1, col + 1)
+            if (row + 1 < difficulty.boardHeight && !gameBoard[row+1][col].hasMask)                           exposeTile(row + 1, col)
+            if (row + 1 < difficulty.boardHeight && col - 1 >= 0 && !gameBoard[row+1][col-1].hasMask)           exposeTile(row + 1, col - 1)
+            if (col + 1 < difficulty.boardWidth && !gameBoard[row][col+1].hasMask)                           exposeTile(row, col + 1)
+            if (col - 1 >= 0 && !gameBoard[row][col-1].hasMask)                                   exposeTile(row, col - 1)
+            if (row - 1 >= 0 && col + 1 < difficulty.boardWidth && !gameBoard[row-1][col+1].hasMask)           exposeTile(row - 1, col + 1)
+            if (row - 1 >= 0 && !gameBoard[row-1][col].hasMask)                                   exposeTile(row - 1, col)
+            if (row - 1 >= 0 && col - 1 >= 0 && !gameBoard[row-1][col-1].hasMask)                   exposeTile(row - 1, col - 1)
+        }
+
+
         // change infectable status of self and all neighbors to false
-        gameBoard[row][col].isInfectable = false
-        if (row + 1 < boardHeight && col + 1 < boardWidth)   gameBoard[row + 1][col + 1].isInfectable = false
-        if (row + 1 < boardHeight)                           gameBoard[row + 1][col].isInfectable = false
-        if (row + 1 < boardHeight && col - 1 >= 0)           gameBoard[row + 1][col - 1].isInfectable = false
-        if (col + 1 < boardWidth)                           gameBoard[row][col + 1].isInfectable = false
+        if (row + 1 < difficulty.boardHeight && col + 1 < difficulty.boardWidth)   gameBoard[row + 1][col + 1].isInfectable = false
+        if (row + 1 < difficulty.boardHeight)                           gameBoard[row + 1][col].isInfectable = false
+        if (row + 1 < difficulty.boardHeight && col - 1 >= 0)           gameBoard[row + 1][col - 1].isInfectable = false
+        if (col + 1 < difficulty.boardWidth)                           gameBoard[row][col + 1].isInfectable = false
         if (col - 1 >= 0)                                   gameBoard[row][col - 1].isInfectable = false
-        if (row - 1 >= 0 && col + 1 < boardWidth)           gameBoard[row - 1][col + 1].isInfectable = false
+        if (row - 1 >= 0 && col + 1 < difficulty.boardWidth)           gameBoard[row - 1][col + 1].isInfectable = false
         if (row - 1 >= 0)                                   gameBoard[row - 1][col].isInfectable = false
         if (row - 1 >= 0 && col - 1 >= 0)                   gameBoard[row - 1][col - 1].isInfectable = false
     }
 
     private  fun countNeighbors(row: Int, col: Int): Int {
         var contactNumber = 0
-        if (row + 1 < boardHeight && col + 1 < boardWidth) contactNumber += gameBoard[row + 1][col + 1].isSick.toInt()
-        if (row + 1 < boardHeight) contactNumber                         += gameBoard[row + 1][col].isSick.toInt()
-        if (row + 1 < boardHeight && col - 1 >= 0) contactNumber         += gameBoard[row + 1][col - 1].isSick.toInt()
-        if (col + 1 < boardWidth) contactNumber                         += gameBoard[row][col + 1].isSick.toInt()
+        if (row + 1 < difficulty.boardHeight && col + 1 < difficulty.boardWidth) contactNumber += gameBoard[row + 1][col + 1].isSick.toInt()
+        if (row + 1 < difficulty.boardHeight) contactNumber                         += gameBoard[row + 1][col].isSick.toInt()
+        if (row + 1 < difficulty.boardHeight && col - 1 >= 0) contactNumber         += gameBoard[row + 1][col - 1].isSick.toInt()
+        if (col + 1 < difficulty.boardWidth) contactNumber                         += gameBoard[row][col + 1].isSick.toInt()
         if (col - 1 >= 0) contactNumber                                 += gameBoard[row][col - 1].isSick.toInt()
-        if (row - 1 >= 0 && col + 1 < boardWidth) contactNumber         += gameBoard[row - 1][col + 1].isSick.toInt()
+        if (row - 1 >= 0 && col + 1 < difficulty.boardWidth) contactNumber         += gameBoard[row - 1][col + 1].isSick.toInt()
         if (row - 1 >= 0) contactNumber                                 += gameBoard[row - 1][col].isSick.toInt()
         if (row - 1 >= 0 && col - 1 >= 0) contactNumber                 += gameBoard[row - 1][col - 1].isSick.toInt()
         return contactNumber
@@ -303,13 +318,13 @@ class GameActivity : AppCompatActivity() {
                 if (person.isSick && !person.hasMask && person.isAlive && person.daysInfected >= 1) {  // people who get sick during this night will have daysInfected = 0, and so will not infect others yet
 
                     // the sick person might infect his neighbors, depending on their distance from him
-                    for (r in 1..infectionRadius) {
+                    for (r in 1..difficulty.infectionRadius) {
                         infectedNum += infectNeighbors(person.row, person.col, r)
                         // TODO: if infectedNum > N, break?
                     }
 
                     // also, the sick person might die, depending on how long he has been sick
-                    val heDies = Random.nextFloat() <= Pdeath * person.daysInfected // TODO: change death probability mechanism here
+                    val heDies = Random.nextFloat() <= difficulty.Pdeath * person.daysInfected // TODO: change death probability mechanism here
                     if (heDies) {
                         person.isAlive = false
                         person.isExposed = true
@@ -328,12 +343,12 @@ class GameActivity : AppCompatActivity() {
     private fun infectNeighbors(row: Int, col: Int, r: Int): Int {
         var infected = 0
         for (rowDiff in r downTo -r) {
-            if (row + rowDiff >= boardHeight || row + rowDiff < 0) continue  // boundary condition
+            if (row + rowDiff >= difficulty.boardHeight || row + rowDiff < 0) continue  // boundary condition
 
-            if (col + r in 0 until boardWidth && gameBoard[row + rowDiff][col + r].isInfectable && !gameBoard[row + rowDiff][col + r].hasMask) infected += infectionChance(row + rowDiff, col + r, r)
-            if (col - r in 0 until boardWidth && gameBoard[row + rowDiff][col - r].isInfectable && !gameBoard[row + rowDiff][col - r].hasMask) infected += infectionChance(row + rowDiff, col - r, r)
+            if (col + r in 0 until difficulty.boardWidth && gameBoard[row + rowDiff][col + r].isInfectable && !gameBoard[row + rowDiff][col + r].hasMask) infected += infectionChance(row + rowDiff, col + r, r)
+            if (col - r in 0 until difficulty.boardWidth && gameBoard[row + rowDiff][col - r].isInfectable && !gameBoard[row + rowDiff][col - r].hasMask) infected += infectionChance(row + rowDiff, col - r, r)
             if (rowDiff == r || rowDiff == -r) for (colDiff in r - 1 downTo (1 - r)) {
-                if (col + colDiff >= boardWidth || col + colDiff < 0) continue  // boundary condition
+                if (col + colDiff >= difficulty.boardWidth || col + colDiff < 0) continue  // boundary condition
                 if (gameBoard[row + rowDiff][col + colDiff].isInfectable && !gameBoard[row + rowDiff][col + colDiff].hasMask) infected += infectionChance(row + rowDiff, col + colDiff, r)
             }
         }
@@ -342,7 +357,7 @@ class GameActivity : AppCompatActivity() {
 
     private fun infectionChance(row: Int, col: Int, r: Int): Int {
         // TODO: change infection probability mechanism here
-        val gotInfected = Random.nextFloat() <= Pinfect / r
+        val gotInfected = Random.nextFloat() <= difficulty.Pinfect / r
         if (gotInfected) {
             gameBoard[row][col].isSick = true
             gameBoard[row][col].isInfectable = false
@@ -433,11 +448,11 @@ class GameActivity : AppCompatActivity() {
     }
 
     private fun checkLosingByDeath() {
-        if (deadNum >= maxDeadAllowed) gameOver(victory = false, reason = "Death")
+        if (deadNum >= difficulty.maxDeadAllowed) gameOver(victory = false, reason = "Death")
     }
 
     private fun checkLosingByEconomy() {
-        if (wrongMasks >= maxWrongMasks) gameOver(victory = false, reason = "Economy")
+        if (wrongMasks >= difficulty.maxWrongMasks) gameOver(victory = false, reason = "Economy")
     }
 
     private fun checkVictory() {
@@ -448,12 +463,12 @@ class GameActivity : AppCompatActivity() {
     fun Boolean.toInt() = if (this) 1 else 0
 
     private fun startTimer() {
-        Toast.makeText(this,"Starting Timer", Toast.LENGTH_SHORT).show()
-        countDownTimer = timer("Day Counter", false, initialDelay = 0, 1000L) {
+//        Toast.makeText(this,"Starting Timer", Toast.LENGTH_SHORT).show()
+        countDownTimer = timer("Day Counter", false, initialDelay = 1000L, 1000L) {
             displayTime(timeLeftSecs)
             if (timeLeftSecs == 0) {
                 nightCycle()
-                timeLeftSecs = dayLengthInMilli.toInt() / 1000
+                timeLeftSecs = difficulty.dayLengthInMilli.toInt() / 1000
                 displayTime(timeLeftSecs)
                 timeLeftSecs--
             } else {
