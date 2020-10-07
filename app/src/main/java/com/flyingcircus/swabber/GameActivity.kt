@@ -436,20 +436,20 @@ class GameActivity : AppCompatActivity() {
         }
         else when (reason) {
             "Death" -> {
-                Toast.makeText(this,"You let too many people die! You LOSE!!", Toast.LENGTH_SHORT).show()
-                startActivity(Intent(this, DeathScreen::class.java))
+                Toast.makeText(this, "You let too many people die! You LOSE!!", Toast.LENGTH_SHORT).show()
+                startActivity(Intent(this, LoseScreen::class.java))
             };
             "Economy" -> {
-                Toast.makeText(this,"The economy collapsed! you LOSE!", Toast.LENGTH_SHORT).show()
-                startActivity(Intent(this, DeathScreen::class.java))
+                Toast.makeText(this, "The economy collapsed! you LOSE!", Toast.LENGTH_SHORT).show()
+                startActivity(Intent(this, LoseScreen::class.java))
             }
             "Corona" -> {
-                Toast.makeText(this,"You got infected with Corona! Loser!", Toast.LENGTH_SHORT).show()
-                startActivity(Intent(this, DeathScreen::class.java))
+                Toast.makeText(this, "You got infected with Corona! Loser!", Toast.LENGTH_SHORT).show()
+                startActivity(Intent(this, LoseScreen::class.java))
             }
             else -> {
                 Toast.makeText(this,"Loser!", Toast.LENGTH_SHORT).show()
-                startActivity(Intent(this, DeathScreen::class.java))
+                startActivity(Intent(this, LoseScreen::class.java))
             }
         }
 
