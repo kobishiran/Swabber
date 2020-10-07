@@ -20,5 +20,10 @@ enum class Difficulty(
     HARD(
         16, 16, 30, 15_000L,
         3, 0.04F, 0.05F, 8, 3
-    )
+    ),
+
+/*    CUSTOM_GAME( // TODO not updated
+    32, 16, 30, 15_000L,
+    3, 0.04F, 0.05F, 8, 3
+    ),*/
 }

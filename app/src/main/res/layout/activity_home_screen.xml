@@ -3,9 +3,20 @@
 <androidx.constraintlayout.widget.ConstraintLayout
         xmlns:android="http://schemas.android.com/apk/res/android"
         xmlns:app="http://schemas.android.com/apk/res-auto"
-        android:layout_width="match_parent" android:layout_height="match_parent"
+        xmlns:tools="http://schemas.android.com/tools" android:layout_width="match_parent" android:layout_height="match_parent"
         android:background="#242021">
 
+    <ImageView
+            android:layout_width="30dp"
+            android:layout_height="30dp" app:srcCompat="@drawable/music" android:id="@+id/imageMusic"
+            android:scaleType="fitXY" app:layout_constraintTop_toTopOf="parent"
+            android:layout_marginTop="16dp" app:layout_constraintEnd_toEndOf="parent"/>
+    <ImageView
+            android:layout_width="30dp"
+            android:layout_height="30dp" app:srcCompat="@drawable/gear" android:id="@+id/imageSettings"
+            app:layout_constraintEnd_toStartOf="@+id/imageMusic"
+            android:layout_marginEnd="9dp" android:layout_marginRight="9dp" app:layout_constraintTop_toTopOf="parent"
+            android:layout_marginTop="16dp"/>
     <TextView
             android:layout_width="wrap_content"
             android:layout_height="wrap_content" android:id="@+id/textSwabber"
@@ -24,14 +35,21 @@
             app:layout_constraintStart_toStartOf="parent" android:layout_marginLeft="168dp"
             android:layout_marginStart="168dp" android:layout_marginTop="24dp"
             app:layout_constraintTop_toBottomOf="@+id/textSwabber"/>
-    <RadioButton
-            android:text="@string/custom_game"
+    <Button
+            android:text="@string/instructions"
             android:layout_width="wrap_content"
-            android:layout_height="wrap_content" android:id="@+id/radioButtonCustomGame"
-            android:textColor="#FFFFFF"
+            android:layout_height="wrap_content" android:id="@+id/buttonInstructions"
             app:layout_constraintStart_toStartOf="parent" android:layout_marginLeft="148dp"
-            android:layout_marginStart="148dp" android:layout_marginTop="12dp"
-            app:layout_constraintTop_toBottomOf="@+id/radioButtonPandemic"/>
+            android:layout_marginStart="148dp"
+            android:layout_marginTop="14dp" app:layout_constraintTop_toBottomOf="@+id/buttonShop"/>
+    <TextView
+            android:text="@string/new_game"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content" android:id="@+id/textNewGame"
+            app:layout_constraintStart_toStartOf="parent"
+            android:layout_marginLeft="112dp" android:layout_marginStart="112dp" android:textColor="#FFFFFF"
+            android:textSize="36sp" android:layout_marginTop="17dp"
+            app:layout_constraintTop_toBottomOf="@+id/buttonInstructions"/>
     <TextView
             android:text="@string/select_game_mode"
             android:layout_width="wrap_content"
@@ -40,53 +58,45 @@
             android:layout_marginStart="88dp"
             android:textSize="24sp" android:layout_marginTop="15dp"
             app:layout_constraintTop_toBottomOf="@+id/textNewGame"/>
-    <RadioButton
-            android:text="@string/pandemic"
+    <RadioGroup
             android:layout_width="wrap_content"
-            android:layout_height="wrap_content" android:id="@+id/radioButtonPandemic"
-            android:textColor="#FFFFFF"
-            android:layout_marginTop="12dp"
-            app:layout_constraintTop_toBottomOf="@+id/radioButtonEpidemic"
-            app:layout_constraintStart_toStartOf="parent" android:layout_marginLeft="148dp"
-            android:layout_marginStart="148dp"/>
-    <TextView
-            android:text="@string/new_game"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content" android:id="@+id/textNewGame"
+            android:layout_height="wrap_content"
             app:layout_constraintStart_toStartOf="parent"
-            android:layout_marginLeft="112dp" android:layout_marginStart="112dp" android:textColor="#FFFFFF"
-            android:textSize="36sp" android:layout_marginTop="17dp" app:layout_constraintTop_toBottomOf="@+id/buttonInstructions"/>
-    <Button
-            android:text="@string/instructions"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content" android:id="@+id/buttonInstructions"
-            app:layout_constraintStart_toStartOf="parent" android:layout_marginLeft="148dp"
-            android:layout_marginStart="148dp"
-            android:layout_marginTop="14dp" app:layout_constraintTop_toBottomOf="@+id/buttonShop"/>
-    <RadioButton
-            android:text="@string/epidemic"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content" android:id="@+id/radioButtonEpidemic"
-            android:textColor="#FFFFFF"
-            android:layout_marginTop="12dp"
-            app:layout_constraintTop_toBottomOf="@+id/radioButtonOutbreak"
-            app:layout_constraintStart_toStartOf="parent" android:layout_marginLeft="148dp"
-            android:layout_marginStart="148dp"/>
-    <RadioButton
-            android:text="@string/outbreak"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content" android:id="@+id/radioButtonOutbreak"
-            android:textColor="#FFFFFF"
-            app:layout_constraintStart_toStartOf="parent"
-            android:layout_marginLeft="148dp" android:layout_marginStart="148dp" android:layout_marginTop="12dp"
-            app:layout_constraintTop_toBottomOf="@+id/textSelectMode"/>
+            android:id="@+id/radioGroupMode" app:layout_constraintTop_toBottomOf="@id/textSelectMode"
+            android:layout_marginHorizontal="204dp" android:layout_marginTop="16dp" android:layout_marginStart="148dp"
+            android:layout_marginLeft="148dp">
+        <RadioButton
+                android:text="@string/outbreak"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content" android:id="@+id/radioButtonOutbreak"
+                android:textColor="#FFFFFF"
+        />
+        <RadioButton
+                android:text="@string/epidemic"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content" android:id="@+id/radioButtonEpidemic"
+                android:textColor="#FFFFFF"
+        />
+        <RadioButton
+                android:text="@string/pandemic"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content" android:id="@+id/radioButtonPandemic"
+                android:textColor="#FFFFFF"
+        />
+        <RadioButton
+                android:text="@string/custom_game"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content" android:id="@+id/radioButtonCustomGame"
+                android:textColor="#FFFFFF"
+        />
+    </RadioGroup>
     <Button
             android:text="@string/start"
             android:layout_width="107dp"
             android:layout_height="50dp" android:id="@+id/buttonStart"
             app:layout_constraintStart_toStartOf="parent" android:layout_marginLeft="160dp"
             android:layout_marginStart="160dp" android:layout_marginTop="22dp"
-            app:layout_constraintTop_toBottomOf="@+id/radioButtonCustomGame"/>
+            app:layout_constraintTop_toBottomOf="@+id/radioGroupMode"/>
     <Button
             android:text="@string/high_scores"
             android:layout_width="wrap_content"
@@ -94,17 +104,6 @@
             app:layout_constraintStart_toStartOf="parent" android:layout_marginLeft="156dp"
             android:layout_marginStart="156dp" android:layout_marginTop="38dp"
             app:layout_constraintTop_toBottomOf="@+id/buttonStart"/>
-    <ImageView
-            android:layout_width="30dp"
-            android:layout_height="30dp" app:srcCompat="@drawable/music" android:id="@+id/imageMusic"
-            android:scaleType="fitXY" app:layout_constraintTop_toTopOf="parent"
-            android:layout_marginTop="16dp" app:layout_constraintEnd_toEndOf="parent"/>
-    <ImageView
-            android:layout_width="30dp"
-            android:layout_height="30dp" app:srcCompat="@drawable/gear" android:id="@+id/imageSettings"
-            app:layout_constraintEnd_toStartOf="@+id/imageMusic"
-            android:layout_marginEnd="9dp" android:layout_marginRight="9dp" app:layout_constraintTop_toTopOf="parent"
-            android:layout_marginTop="16dp"/>
 </androidx.constraintlayout.widget.ConstraintLayout>
 
 
