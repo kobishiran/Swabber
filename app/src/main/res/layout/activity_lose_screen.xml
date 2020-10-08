@@ -41,8 +41,8 @@
             app:layout_constraintRight_toRightOf="parent"
             app:layout_constraintVertical_bias="0.89"
     />
-    <TextView
-            android:id="@+id/textRetry"
+    <Button
+            android:id="@+id/buttonRetryLose"
             android:text="Retry"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
@@ -51,6 +51,20 @@
             app:layout_constraintBottom_toBottomOf="parent"
             app:layout_constraintLeft_toLeftOf="parent"
             app:layout_constraintRight_toRightOf="parent"
-            app:layout_constraintVertical_bias="0.95"
+            app:layout_constraintVertical_bias="0.98"
+            app:layout_constraintHorizontal_bias="0.75"
+    />
+    <Button
+            android:id="@+id/buttonReturnHomeScreenLose"
+            android:text="New game"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:textColor="#FFFFFF"
+            app:layout_constraintTop_toTopOf="parent"
+            app:layout_constraintBottom_toBottomOf="parent"
+            app:layout_constraintLeft_toLeftOf="parent"
+            app:layout_constraintRight_toRightOf="parent"
+            app:layout_constraintVertical_bias="0.98"
+            app:layout_constraintHorizontal_bias="0.3"
     />
 </androidx.constraintlayout.widget.ConstraintLayout>
