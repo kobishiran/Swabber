@@ -9,6 +9,8 @@
             android:roundIcon="@mipmap/icon_round"
             android:supportsRtl="false"
             android:theme="@style/Theme.AppCompat.DayNight.NoActionBar">
+        <activity android:name=".DatabaseTest">
+        </activity>
         <activity android:name=".WinScreen">
         </activity>
         <activity android:name=".LoseScreen">
