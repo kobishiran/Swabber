@@ -17,6 +17,7 @@ class WinScreen : AppCompatActivity() {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_win_screen)
 
+        // underline high scores
         fun TextView.underline() {
             paintFlags = paintFlags or Paint.UNDERLINE_TEXT_FLAG
         }
@@ -47,11 +48,12 @@ class WinScreen : AppCompatActivity() {
         // Start same game
         buttonRetryWin.setOnClickListener() {
             startActivity(Intent(this, GameActivity::class.java).putExtra("Difficulty", difficulty))
+            finish()
         }
 
         // Start new game
         buttonReturnHomeScreenWin.setOnClickListener() {
-            startActivity(Intent(this, HomeScreen::class.java))
+            finish()
         }
 
         // Clear Leaderboards

@@ -15,11 +15,12 @@ class LoseScreen : AppCompatActivity() {
         // Start same game
         buttonRetryLose.setOnClickListener() {
             startActivity(Intent(this, GameActivity::class.java).putExtra("Difficulty", difficulty))
+            finish()
         }
 
         // Start new game
         buttonReturnHomeScreenLose.setOnClickListener() {
-            startActivity(Intent(this, HomeScreen::class.java))
+            finish()
         }
     }
 }

@@ -56,7 +56,7 @@
     />
     <Button
             android:id="@+id/buttonReturnHomeScreenLose"
-            android:text="New game"
+            android:text="Menu"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:textColor="#FFFFFF"

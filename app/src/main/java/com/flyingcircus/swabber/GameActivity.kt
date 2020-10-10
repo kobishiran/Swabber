@@ -241,7 +241,6 @@ class GameActivity : AppCompatActivity() {
 
         // if not, expose the tile, and possibly it's neighbors
         gameBoard[row][col].isExposed = true
-        unknownCounter--
         gameBoard[row][col].contactNumber = countNeighbors(row, col)
         gameBoard[row][col].isInfectable = false
 
@@ -253,6 +252,9 @@ class GameActivity : AppCompatActivity() {
             gameOver(false, "Corona")
             return
         }
+
+        // isolated for the case that the last tile is bomb
+        unknownCounter--
 
         // if number of neighbors is zero, expose all the neighbors too
         if (gameBoard[row][col].contactNumber == 0) {
@@ -521,7 +523,7 @@ class GameActivity : AppCompatActivity() {
                 startActivity(Intent(this, LoseScreen::class.java).putExtra("Difficulty", difficulty))
             }
         }
-
+        finish()
     }
 
     private fun checkLosingByDeath() {
