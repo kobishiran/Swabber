@@ -1,8 +1,10 @@
 package com.flyingcircus.swabber
 
 import android.content.Intent
+import android.graphics.Paint
 import androidx.appcompat.app.AppCompatActivity
 import android.os.Bundle
+import android.widget.TextView
 import kotlinx.android.synthetic.main.activity_database_test.*
 import kotlinx.android.synthetic.main.activity_win_screen.*
 import kotlinx.coroutines.GlobalScope
@@ -14,6 +16,13 @@ class WinScreen : AppCompatActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_win_screen)
+
+        fun TextView.underline() {
+            paintFlags = paintFlags or Paint.UNDERLINE_TEXT_FLAG
+        }
+
+        val high_scores: TextView = findViewById(R.id.high_scores)
+        high_scores.underline()
 
         val difficulty = intent.getSerializableExtra("Difficulty") as Difficulty
         val score = intent.getSerializableExtra("Score") as Score
