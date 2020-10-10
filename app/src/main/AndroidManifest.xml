@@ -18,6 +18,8 @@
         <activity android:name=".GameActivity">
         </activity>
         <activity android:name=".HomeScreen">
+        </activity>
+        <activity android:name=".HomeScreenAnimation">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN"/>
 

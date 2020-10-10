@@ -5,7 +5,7 @@ import kotlinx.coroutines.GlobalScope
 import kotlinx.coroutines.async
 import kotlinx.coroutines.runBlocking
 
-const val topScoresNum = 5
+const val topScoresNum = 3
 fun insertScore(score: Score, scoreDB: ScoreDatabase): Boolean {
     lateinit var topScores: Array<Score>
 

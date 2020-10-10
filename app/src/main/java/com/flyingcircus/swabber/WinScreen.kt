@@ -40,7 +40,7 @@ class WinScreen : AppCompatActivity() {
             val newHighScoreFlag = insertScore(score, scoresDb)
 
             // Display the leaderboard
-            displayHighScores(scoresDb, score.difficulty, arrayOf(topScore1, topScore2, topScore3, topScore4, topScore5))
+            displayHighScores(scoresDb, score.difficulty, arrayOf(topScore1, topScore2, topScore3))
 
             // TODO: if (newHighScoreFlag) displayNewHighScoreMassage
         }
@@ -66,7 +66,7 @@ class WinScreen : AppCompatActivity() {
                 val newHighScoreFlag = insertScore(score, scoresDb)
 
                 // Display the leaderboard
-                displayHighScores(scoresDb, score.difficulty, arrayOf(topScore1, topScore2, topScore3, topScore4, topScore5))
+                displayHighScores(scoresDb, score.difficulty, arrayOf(topScore1, topScore2, topScore3))
 
                 // TODO: if (newHighScoreFlag) displayNewHighScoreMassage
             }

@@ -78,7 +78,7 @@
                 android:layout_height="wrap_content"
                 android:layout_weight="0.6"
                 android:gravity="center"
-                android:background="#7BBBF3"
+
         >
             <TextView
                     android:id="@+id/high_scores"
@@ -117,24 +117,6 @@
                     android:textSize="12sp"
                     android:textColor="#000000"
                     android:layout_marginTop="7dp"
-            />
-            <TextView
-                    android:id="@+id/topScore4"
-                    tools:text="Score 4"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:textSize="12sp"
-                    android:textColor="#000000"
-                    android:layout_marginTop="7dp"
-            />
-            <TextView
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:id="@+id/topScore5"
-                    tools:text="Score 5"
-                    android:layout_marginTop="7dp"
-                    android:textSize="12sp"
-                    android:textColor="#000000"
                     android:layout_marginBottom="8dp"
             />
         </LinearLayout>
