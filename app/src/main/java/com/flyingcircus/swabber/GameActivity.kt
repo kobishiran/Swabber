@@ -44,7 +44,7 @@ class GameActivity : AppCompatActivity() {
 
         initializeBoard()
         displayInitBoard(difficulty.boardHeight, difficulty.boardWidth)
-        clickListener(difficulty.boardHeight, difficulty.boardWidth)
+        boardClickListener(difficulty.boardHeight, difficulty.boardWidth)
         pauseButton.setOnClickListener {
             if (gameIsRunning) {
                 countDownTimer.cancel()
@@ -201,7 +201,7 @@ class GameActivity : AppCompatActivity() {
         }
     }
 
-    private fun clickListener(boardHeight: Int, boardWidth: Int){
+    private fun boardClickListener(boardHeight: Int, boardWidth: Int) {
         for (row in 1..boardHeight) {
             for (col in 1..boardWidth) {
                 val temp: ImageView = findViewById(100 * row + col)
@@ -536,9 +536,6 @@ class GameActivity : AppCompatActivity() {
         if (unknownCounter == 0) gameOver(true, "Yay!") // the reason argument is not needed here
     }
 
-    // extension function to turn bool to int
-    fun Boolean.toInt() = if (this) 1 else 0
-
     private fun startTimer() {
 //        Toast.makeText(this,"Starting Timer", Toast.LENGTH_SHORT).show()
         countDownTimer = timer("Day Counter", false, initialDelay = 1000L, 1000L) {
@@ -564,6 +561,9 @@ class GameActivity : AppCompatActivity() {
                     seconds.toString().padStart(2, '0')
         }
     }
+
+    // extension function to turn bool to int
+    fun Boolean.toInt() = if (this) 1 else 0
 
 }
 

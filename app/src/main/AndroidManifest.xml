@@ -4,9 +4,9 @@
 
     <application
             android:allowBackup="true"
-            android:icon="@mipmap/icon"
+            android:icon="@drawable/iconplaystore"
             android:label="@string/app_name"
-            android:roundIcon="@mipmap/icon_round"
+            android:roundIcon="@drawable/iconplaystore"
             android:supportsRtl="false"
             android:theme="@style/Theme.AppCompat.DayNight.NoActionBar">
         <activity android:name=".DatabaseTest">

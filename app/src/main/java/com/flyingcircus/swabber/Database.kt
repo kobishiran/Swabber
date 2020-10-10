@@ -17,7 +17,7 @@ data class Score (
     // TODO: Add BoardSize, total_elapsed_time, number_of_dead, number_of_wrong_masks ?
 ) : Serializable
 
-// This is the DAO - Data Access Object. This is were you define the methods (that are actually SQL Queries) to access
+// This is the DAO - Data Access Object. This is where you define the methods (that are actually SQL Queries) to access
 // the data, like searching, deleting or inserting new data.
 @Dao
 interface ScoresDao {
