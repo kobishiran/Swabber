@@ -3,6 +3,7 @@ package com.flyingcircus.swabber
 import android.content.Context
 import androidx.room.*
 import androidx.room.Database
+import java.io.Serializable
 
 // This is the actual table that stores the data. Each row is a single high score, and each column is one of the table
 // variables: Position, Player Name, Score, Date
@@ -14,7 +15,7 @@ data class Score (
     @ColumnInfo(name = "Score") var score: Int,
     @ColumnInfo(name = "Date") var date: String
     // TODO: Add BoardSize, total_elapsed_time, number_of_dead, number_of_wrong_masks ?
-)
+) : Serializable
 
 // This is the DAO - Data Access Object. This is were you define the methods (that are actually SQL Queries) to access
 // the data, like searching, deleting or inserting new data.
@@ -24,9 +25,9 @@ interface ScoresDao {
     @Insert(onConflict = OnConflictStrategy.REPLACE)
     fun insertNewHighScore(highscore: Score)
 
-    // delete a score
-    @Delete
-    fun deleteScore(score: Score)
+    // delete all scores
+    @Query("DELETE FROM score WHERE Difficulty == :difficulty")
+    fun deleteAll(difficulty: String)
 
     // get all scores
     @Query("SELECT * FROM score ORDER BY Position ASC")

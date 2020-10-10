@@ -7,7 +7,7 @@ import kotlinx.coroutines.GlobalScope
 import kotlinx.coroutines.async
 import kotlinx.coroutines.runBlocking
 
-class DatabaseTest : AppCompatActivity() {
+private class DatabaseTest : AppCompatActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         lateinit var scoresDb: ScoreDatabase
 

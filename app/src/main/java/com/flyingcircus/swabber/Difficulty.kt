@@ -3,21 +3,22 @@ package com.flyingcircus.swabber
 import java.io.Serializable
 
 enum class Difficulty(
+    val difficultyName: String,
     val boardHeight: Int, val boardWidth: Int, val initialSickNum: Int,
     val dayLengthInMilli: Long, val infectionRadius: Int, val Pdeath: Float,
     val Pinfect: Float, val maxDeadAllowed: Int, val maxWrongMasks: Int): Serializable {
 
-    EASY(
+    EASY("EASY",
         10, 10, 10, 20_000L,
         1, 0.01F, 0.07F, 5, 3
     ),
 
-    MEDIUM(
+    MEDIUM("MEDIUM",
         16, 10, 16, 20_000L,
         2, 0.03F, 0.05F, 5, 3
     ),
 
-    HARD(
+    HARD("HARD",
         18, 13, 24, 20_000L,
         3, 0.04F, 0.05F, 8, 3
     ),

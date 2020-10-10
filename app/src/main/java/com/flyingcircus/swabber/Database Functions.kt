@@ -63,7 +63,21 @@ fun displayHighScores(scoreDB: ScoreDatabase, difficulty: String, textViews: Arr
         if (tempTopScore.score == 0) return  // if there are no more scores to show, return
         textViews[position].text = ""
         textViews[position].text = "${tempTopScore.position}. ${tempTopScore.player_name}: ${tempTopScore.score},   ${tempTopScore.date}"
+        if (position == topScores.size - 1) {
+            var emptyScoresPosition = position + 1
+            while (emptyScoresPosition < topScoresNum) {
+                textViews[emptyScoresPosition].text = ""
+                emptyScoresPosition++
+            }
+            return
+        }
 
     }
 
+}
+
+// Clear a certain difficulty list from the DB
+fun clearDatabase(scoreDB: ScoreDatabase, difficulty: String): Boolean {
+    runBlocking { GlobalScope.async { scoreDB.scoresDao().deleteAll(difficulty) }.join() }
+    return true
 }

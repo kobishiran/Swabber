@@ -11,8 +11,10 @@ import androidx.appcompat.app.AppCompatActivity
 import kotlinx.android.synthetic.main.activity_main.*
 import java.lang.Math.abs
 import java.util.*
+import kotlin.collections.ArrayList
 import kotlin.concurrent.timer
 import kotlin.math.max
+import kotlin.math.roundToInt
 import kotlin.random.Random
 
 
@@ -20,24 +22,18 @@ class GameActivity : AppCompatActivity() {
 
     // Initialise global variables
     lateinit var difficulty: Difficulty
-//    val initialSickNum = 20         // number of "mines"
-//    val boardHeight = 16             // number of rows
-//    val boardWidth = 10             // number of columns
     lateinit var gameBoard: Array<Array<Person>>
     var unknownCounter = 0 // number of "tiles" not "exposed" neither "flagged"
     var masksNum = 0   // number of "flags"
-//    val dayLengthInMilli = 20_000L    // number of (milli)seconds from day to day
     var timeLeftSecs = 0  // the current time of the timer, initialized to a full day
-//    val infectionRadius = 2  // the maximal infection radius
-//    val Pdeath = 0.01F  // base probability to die
-//    val Pinfect = 0.05F // base probability to get infected
     var deadNum = 0  // total number of people that died
-//    val maxDeadAllowed = 5  // maximal number of dead people allowed before you lose
     var wrongMasks = 0  // the number of masks placed on healthy people
-//    val maxWrongMasks = 3 // maximal number of wrong masks before you lose due to economic disaster
     var gameIsRunning = true
     var daysCounter = 1
+    var playerClicks = 0
     lateinit var countDownTimer: Timer
+    var board3BVList= ArrayList<Int>()
+    val playerName = "Gal"  // temp placeholder
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -110,6 +106,7 @@ class GameActivity : AppCompatActivity() {
         displayTime(timeLeftSecs)
         gameIsRunning = true
         daysCounter = 1
+        board3BVList.clear()
 
         // update Days Counter display
         textDayCounter.text = "Day $daysCounter"
@@ -121,6 +118,9 @@ class GameActivity : AppCompatActivity() {
             gameBoard[index / difficulty.boardWidth][index % difficulty.boardWidth].isSick = true
             gameBoard[index / difficulty.boardWidth][index % difficulty.boardWidth].isInfectable = false
         }
+
+        // Calculate board 3BV Score
+        board3BVList.add(getBoard3BV(gameBoard))
     }
 
     private fun displayInitBoard(boardHeight: Int, boardWidth: Int){
@@ -228,6 +228,7 @@ class GameActivity : AppCompatActivity() {
             // TODO: show error: has a mask!
             Toast.makeText(this, "Has a mask!", Toast.LENGTH_SHORT).show()
         } else {
+            playerClicks++
             exposeTile(row, col)
             checkVictory()
         }
@@ -293,7 +294,7 @@ class GameActivity : AppCompatActivity() {
             gameBoard[row - 1][col - 1].isInfectable = false
     }
 
-    private  fun countNeighbors(row: Int, col: Int): Int {
+    private fun countNeighbors(row: Int, col: Int): Int {
         var contactNumber = 0
         if (row + 1 < difficulty.boardHeight && col + 1 < difficulty.boardWidth)
             contactNumber += gameBoard[row + 1][col + 1].isSick.toInt()
@@ -320,12 +321,12 @@ class GameActivity : AppCompatActivity() {
                 true -> {  // if already has mask, remove it
                     gameBoard[row][col].hasMask = false
                     unknownCounter++
-                    if (!gameBoard[row][col].isSick) wrongMasks--
+                    if (!gameBoard[row][col].isSick) {wrongMasks-- ; playerClicks--}
                 }
                 false -> {  // if not, put on a mask
                     gameBoard[row][col].hasMask = true
                     unknownCounter--
-                    if (!gameBoard[row][col].isSick) wrongMasks++
+                    if (!gameBoard[row][col].isSick) {wrongMasks++ ; playerClicks++}
                     checkLosingByEconomy()
                 }
             }
@@ -354,6 +355,9 @@ class GameActivity : AppCompatActivity() {
 
         daysCounter++
         textDayCounter.text = "Day $daysCounter"
+
+        // calculate the new board's 3BV
+        board3BVList.add(getBoard3BV(gameBoard))
 
         // Display a night ending massage (must be called from main UI thread)
         this@GameActivity.runOnUiThread {
@@ -478,11 +482,27 @@ class GameActivity : AppCompatActivity() {
     }
 
     private fun gameOver(victory: Boolean, reason: String) {
-        // TODO: add transitions to end activities
-//        countDownTimer.cancel()
+        // TODO: Create Score object / Pass raw score to end screen (if player name is not yet known)
+        // calculate mean 3BV score
+        var mean3BV = 0F
+        val scoreWeights = (board3BVList.size downTo 1).toList()
+        for (day in 0 until board3BVList.size) mean3BV +=  scoreWeights[day] * board3BVList[day]
+        mean3BV /= (scoreWeights.sum().toFloat())  // Normalize by the total weight
+
+        println(board3BVList.toString())
+        println("Mean 3BV: $mean3BV")
+        println("Player Clicks: $playerClicks")
+        println("Dead: $deadNum, Wrong Masks: $wrongMasks, Days: $daysCounter")
+
+        val playerScore = ((mean3BV / playerClicks) * 10_000).roundToInt() - 100 * deadNum - 100 * wrongMasks - 50 * (daysCounter - 1)
+
+        // Create score object
+        val scoreObject = Score(difficulty.difficultyName, -1, playerName, playerScore, "Today")
+
+//        countDownTimer.cancel() // TODO: Add this on actual app
         if (victory) {
             Toast.makeText(this, "Winner!", Toast.LENGTH_SHORT).show()
-            startActivity(Intent(this, WinScreen::class.java).putExtra("Difficulty", difficulty))
+            startActivity(Intent(this, WinScreen::class.java).putExtra("Difficulty", difficulty).putExtra("Score", scoreObject))
         } else when (reason) { // TODO: different lose screens \\\ we need to adjust code for custom game (doesnt have difficulty)
             "Death" -> {
                 Toast.makeText(this, "You let too many people die! You LOSE!!", Toast.LENGTH_SHORT).show()
