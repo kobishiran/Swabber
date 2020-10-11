@@ -8,18 +8,21 @@ enum class Difficulty(
     val dayLengthInMilli: Long, val infectionRadius: Int, val Pdeath: Float,
     val Pinfect: Float, val maxDeadAllowed: Int, val maxWrongMasks: Int): Serializable {
 
-    EASY("EASY",
-        10, 10, 10, 20_000L,
+    EASY(
+        "EASY",
+        10, 10, 11, 20_000L,
         1, 0.01F, 0.07F, 5, 3
     ),
 
-    MEDIUM("MEDIUM",
-        16, 10, 16, 20_000L,
+    MEDIUM(
+        "MEDIUM",
+        16, 10, 18, 20_000L,
         2, 0.03F, 0.05F, 5, 3
     ),
 
-    HARD("HARD",
-        18, 13, 24, 20_000L,
+    HARD(
+        "HARD",
+        18, 13, 27, 20_000L,
         3, 0.04F, 0.05F, 8, 3
     ),
 

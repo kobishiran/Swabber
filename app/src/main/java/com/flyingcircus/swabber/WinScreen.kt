@@ -1,11 +1,16 @@
 package com.flyingcircus.swabber
 
+import android.content.DialogInterface
 import android.content.Intent
 import android.graphics.Paint
 import androidx.appcompat.app.AppCompatActivity
 import android.os.Bundle
+import android.view.View
+import android.widget.EditText
+import android.widget.LinearLayout
 import android.widget.TextView
-import kotlinx.android.synthetic.main.activity_database_test.*
+import android.widget.Toast
+import androidx.appcompat.app.AlertDialog
 import kotlinx.android.synthetic.main.activity_win_screen.*
 import kotlinx.coroutines.GlobalScope
 import kotlinx.coroutines.async
@@ -22,7 +27,7 @@ class WinScreen : AppCompatActivity() {
             paintFlags = paintFlags or Paint.UNDERLINE_TEXT_FLAG
         }
 
-        val high_scores: TextView = findViewById(R.id.high_scores)
+        val high_scores: TextView = findViewById(R.id.text_high_scores)
         high_scores.underline()
 
         val difficulty = intent.getSerializableExtra("Difficulty") as Difficulty
@@ -33,17 +38,47 @@ class WinScreen : AppCompatActivity() {
             scoresDb = GlobalScope.async { ScoreDatabase.getDatabase(applicationContext) }.await()
         }
 
+        // print your score
         yourScore.text = "YOUR SCORE IS: ${score.score}"
 
-        // Insert a new score to the DB
-        runBlocking {
-            val newHighScoreFlag = insertScore(score, scoresDb)
+        // prepare high scores board to be visible
+        val high_scores_board: LinearLayout = findViewById(R.id.high_scores_board)
 
-            // Display the leaderboard
-            displayHighScores(scoresDb, score.difficulty, arrayOf(topScore1, topScore2, topScore3))
+        val builder = AlertDialog.Builder(this)
+        val inflater = layoutInflater
+        builder.setTitle("Enter your name")
+        val dialogLayout = inflater.inflate(R.layout.alert_dialog_enter_name, null)
+        val editText = dialogLayout.findViewById<EditText>(R.id.editText)
+        builder.setView(dialogLayout)
+        builder.setPositiveButton("OK", DialogInterface.OnClickListener() { dialogInterface: DialogInterface, i: Int ->
+            score.player_name = editText.text.toString()
+            // Insert a new score to the DB
+            runBlocking {
+                val newHighScoreFlag = insertScore(score, scoresDb)
 
-            // TODO: if (newHighScoreFlag) displayNewHighScoreMassage
-        }
+                // show high scores title (visible)
+                high_scores_board.visibility = View.VISIBLE
+
+                // Display the leaderboard
+                displayHighScores(scoresDb, score.difficulty, arrayOf(topScore1, topScore2, topScore3))
+
+                // TODO: if (newHighScoreFlag) displayNewHighScoreMassage
+            }
+        })
+        builder.setNegativeButton(
+            "Cancel",
+            DialogInterface.OnClickListener() { dialogInterface: DialogInterface, i: Int ->
+
+                // show high scores title (visible)
+                high_scores_board.visibility = View.VISIBLE
+
+                // Display the leaderboard
+                displayHighScores(scoresDb, score.difficulty, arrayOf(topScore1, topScore2, topScore3))
+                Toast.makeText(this, "Your result wasn't saved", Toast.LENGTH_SHORT).show()
+            })
+
+        builder.show()
+
 
         // Start same game
         buttonRetryWin.setOnClickListener() {

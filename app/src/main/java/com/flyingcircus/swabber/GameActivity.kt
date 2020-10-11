@@ -32,8 +32,8 @@ class GameActivity : AppCompatActivity() {
     var daysCounter = 1
     var playerClicks = 0
     lateinit var countDownTimer: Timer
-    var board3BVList= ArrayList<Int>()
-    val playerName = "Gal"  // temp placeholder
+    var board3BVList = ArrayList<Int>()
+    val playerName = "???"  // temp placeholder
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
