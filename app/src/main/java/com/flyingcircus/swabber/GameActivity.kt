@@ -488,15 +488,17 @@ class GameActivity : AppCompatActivity() {
         // calculate mean 3BV score
         var mean3BV = 0F
         val scoreWeights = (board3BVList.size downTo 1).toList()
-        for (day in 0 until board3BVList.size) mean3BV +=  scoreWeights[day] * board3BVList[day]
+        val totalTime =
+            (difficulty.dayLengthInMilli.toInt() / 1000 - timeLeftSecs) + (daysCounter - 1) * difficulty.dayLengthInMilli.toInt() / 1000
+        for (day in 0 until board3BVList.size) mean3BV += scoreWeights[day] * board3BVList[day]
         mean3BV /= (scoreWeights.sum().toFloat())  // Normalize by the total weight
-
         println(board3BVList.toString())
         println("Mean 3BV: $mean3BV")
         println("Player Clicks: $playerClicks")
+        println("Total time: $totalTime")
         println("Dead: $deadNum, Wrong Masks: $wrongMasks, Days: $daysCounter")
-
-        val playerScore = ((mean3BV / playerClicks) * 10_000).roundToInt() - 100 * deadNum - 100 * wrongMasks - 50 * (daysCounter - 1)
+        val playerScore =
+            ((mean3BV / playerClicks) * 10_000).roundToInt() - 100 * deadNum - 100 * wrongMasks - 50 * (daysCounter - 1)
 
         // Create score object
         val scoreObject = Score(difficulty.difficultyName, -1, playerName, playerScore, "Today")
