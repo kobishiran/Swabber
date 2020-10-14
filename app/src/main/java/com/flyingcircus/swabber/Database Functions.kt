@@ -5,7 +5,7 @@ import kotlinx.coroutines.GlobalScope
 import kotlinx.coroutines.async
 import kotlinx.coroutines.runBlocking
 
-const val topScoresNum = 3
+
 fun insertScore(score: Score, scoreDB: ScoreDatabase): Boolean {
     lateinit var topScores: Array<Score>
 
@@ -21,7 +21,7 @@ fun insertScore(score: Score, scoreDB: ScoreDatabase): Boolean {
 
     // Check if the given score is a new high score. If so, insert it to the DB
     var tempTopScore: Score
-    for (position in 0 until topScoresNum) {  // note: position here is a *zero-based index*, while the table index is *one-based*!
+    for (position in 0 until ScoresDao.topScoresNum) {  // note: position here is a *zero-based index*, while the table index is *one-based*!
 
         // if the leaderboard is not yet full and we got to the end, insert the new score at the bottom of the list
         if (position !in topScores.indices) {
@@ -38,7 +38,7 @@ fun insertScore(score: Score, scoreDB: ScoreDatabase): Boolean {
                 scoreDB.scoresDao().insertNewHighScore(score)  // insert the new high score to the DB
                 // push all the next high scores down by 1
                 var pushDownPosition = position
-                while (pushDownPosition in topScores.indices && pushDownPosition < topScoresNum) {
+                while (pushDownPosition in topScores.indices && pushDownPosition < ScoresDao.topScoresNum) {
                     tempTopScore = topScores[pushDownPosition]
                     tempTopScore.position = tempTopScore.position + 1  // push the score 1 down
                     scoreDB.scoresDao().insertNewHighScore(tempTopScore)
@@ -58,14 +58,14 @@ fun displayHighScores(scoreDB: ScoreDatabase, difficulty: String, textViews: Arr
 
     var tempTopScore: Score
     // Display each score in a different text box
-    for (position in 0 until kotlin.math.min(topScoresNum, topScores.size)) {
+    for (position in 0 until kotlin.math.min(ScoresDao.topScoresNum, topScores.size)) {
         tempTopScore = topScores[position]
         if (tempTopScore.score == 0) return  // if there are no more scores to show, return
         textViews[position].text = ""
         textViews[position].text = "${tempTopScore.position}. ${tempTopScore.player_name}: ${tempTopScore.score},   ${tempTopScore.date}"
         if (position == topScores.size - 1) {
             var emptyScoresPosition = position + 1
-            while (emptyScoresPosition < topScoresNum) {
+            while (emptyScoresPosition < ScoresDao.topScoresNum) {
                 textViews[emptyScoresPosition].text = ""
                 emptyScoresPosition++
             }

@@ -18,6 +18,7 @@ import kotlinx.coroutines.runBlocking
 
 class WinScreen : AppCompatActivity() {
     lateinit var scoresDb: ScoreDatabase
+    lateinit var tempScores: Array<Score>
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_win_screen)
@@ -43,35 +44,54 @@ class WinScreen : AppCompatActivity() {
 
         // prepare high scores board to be visible
         val high_scores_board: LinearLayout = findViewById(R.id.high_scores_board)
+        var newHighScoreFlag = false
 
-        val builder = AlertDialog.Builder(this)
-        val inflater = layoutInflater
-        builder.setTitle("Enter your name")
-        val dialogLayout = inflater.inflate(R.layout.alert_dialog_enter_name, null)
-        val editText = dialogLayout.findViewById<EditText>(R.id.editText)
-        builder.setView(dialogLayout)
-        builder.setPositiveButton("OK", DialogInterface.OnClickListener() { dialogInterface: DialogInterface, i: Int ->
-            score.player_name = editText.text.toString()
-            // Insert a new score to the DB
-            runBlocking {
-                val newHighScoreFlag = insertScore(score, scoresDb)
-                // TODO: if (newHighScoreFlag) displayNewHighScoreMassage
-            }
-        })
-        builder.setNegativeButton(
-            "Cancel",
-            DialogInterface.OnClickListener() { dialogInterface: DialogInterface, i: Int -> })
-        builder.setOnDismissListener(DialogInterface.OnDismissListener {
+        var numberOfScores = 0
+        // check if the score is a new high score
+        runBlocking {
+            tempScores = GlobalScope.async { scoresDb.scoresDao().getScoresLowerThen(score.difficulty, score.score) }.await()
+            numberOfScores = GlobalScope.async { scoresDb.scoresDao().getTopScores(score.difficulty).size }.await()
+        }
+
+        if (tempScores.size > 0 || numberOfScores < ScoresDao.topScoresNum) {
+
+            val builder = AlertDialog.Builder(this)
+            val inflater = layoutInflater
+            builder.setTitle("Enter your name")
+            val dialogLayout = inflater.inflate(R.layout.alert_dialog_enter_name, null)
+            val editText = dialogLayout.findViewById<EditText>(R.id.editText)
+            builder.setView(dialogLayout)
+            builder.setPositiveButton("OK", DialogInterface.OnClickListener() { dialogInterface: DialogInterface, i: Int ->
+                score.player_name = editText.text.toString()
+                // Insert a new score to the DB
+                runBlocking {
+                    newHighScoreFlag = insertScore(score, scoresDb)
+                    // TODO: if (newHighScoreFlag) displayNewHighScoreMassage
+                }
+            })
+            builder.setNegativeButton(
+                "Cancel",
+                DialogInterface.OnClickListener() { dialogInterface: DialogInterface, i: Int -> })
+            builder.setOnDismissListener(DialogInterface.OnDismissListener {
+                // show high scores title (visible)
+                high_scores_board.visibility = View.VISIBLE
+
+                // Display the leaderboard
+                displayHighScores(scoresDb, score.difficulty, arrayOf(topScore1, topScore2, topScore3, topScore4, topScore5))
+                if (!newHighScoreFlag) Toast.makeText(this, "Your result wasn't saved", Toast.LENGTH_SHORT).show()
+            })
+
+
+            builder.show()
+        } else {
             // show high scores title (visible)
             high_scores_board.visibility = View.VISIBLE
 
             // Display the leaderboard
-            displayHighScores(scoresDb, score.difficulty, arrayOf(topScore1, topScore2, topScore3))
-            Toast.makeText(this, "Your result wasn't saved", Toast.LENGTH_SHORT).show()
-        })
+            displayHighScores(scoresDb, score.difficulty, arrayOf(topScore1, topScore2, topScore3, topScore4, topScore5))
+            Toast.makeText(this, "Not a new high score... Better luck next time!", Toast.LENGTH_SHORT).show()
+        }
 
-
-        builder.show()
 
 
         // Start same game
@@ -95,7 +115,7 @@ class WinScreen : AppCompatActivity() {
                 val newHighScoreFlag = insertScore(score, scoresDb)
 
                 // Display the leaderboard
-                displayHighScores(scoresDb, score.difficulty, arrayOf(topScore1, topScore2, topScore3))
+                displayHighScores(scoresDb, score.difficulty, arrayOf(topScore1, topScore2, topScore3, topScore4, topScore5))
 
                 // TODO: if (newHighScoreFlag) displayNewHighScoreMassage
             }

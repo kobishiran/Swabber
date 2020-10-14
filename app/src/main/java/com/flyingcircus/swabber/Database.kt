@@ -21,6 +21,9 @@ data class Score (
 // the data, like searching, deleting or inserting new data.
 @Dao
 interface ScoresDao {
+    companion object {
+        const val topScoresNum = 5
+    }
     // insert a new score log into the scoreboard
     @Insert(onConflict = OnConflictStrategy.REPLACE)
     fun insertNewHighScore(highscore: Score)
@@ -44,6 +47,10 @@ interface ScoresDao {
     // get top scores of a specific difficulty
     @Query("SELECT * FROM score WHERE Difficulty == :difficulty ORDER BY Position ASC")
     fun getTopScores(difficulty: String): Array<Score>
+
+    // get all the scores lower then a certain score, to check for a new highscore
+    @Query("SELECT * FROM score WHERE Difficulty == :difficulty AND Score < (:score - 1)")
+    fun getScoresLowerThen(difficulty: String, score: Int): Array<Score>
 }
 
 // This is the Database object. It stores the DAO in it, from which you can access and change the data.
