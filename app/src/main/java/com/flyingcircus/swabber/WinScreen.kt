@@ -55,27 +55,21 @@ class WinScreen : AppCompatActivity() {
             // Insert a new score to the DB
             runBlocking {
                 val newHighScoreFlag = insertScore(score, scoresDb)
-
-                // show high scores title (visible)
-                high_scores_board.visibility = View.VISIBLE
-
-                // Display the leaderboard
-                displayHighScores(scoresDb, score.difficulty, arrayOf(topScore1, topScore2, topScore3))
-
                 // TODO: if (newHighScoreFlag) displayNewHighScoreMassage
             }
         })
         builder.setNegativeButton(
             "Cancel",
-            DialogInterface.OnClickListener() { dialogInterface: DialogInterface, i: Int ->
+            DialogInterface.OnClickListener() { dialogInterface: DialogInterface, i: Int -> })
+        builder.setOnDismissListener(DialogInterface.OnDismissListener {
+            // show high scores title (visible)
+            high_scores_board.visibility = View.VISIBLE
 
-                // show high scores title (visible)
-                high_scores_board.visibility = View.VISIBLE
+            // Display the leaderboard
+            displayHighScores(scoresDb, score.difficulty, arrayOf(topScore1, topScore2, topScore3))
+            Toast.makeText(this, "Your result wasn't saved", Toast.LENGTH_SHORT).show()
+        })
 
-                // Display the leaderboard
-                displayHighScores(scoresDb, score.difficulty, arrayOf(topScore1, topScore2, topScore3))
-                Toast.makeText(this, "Your result wasn't saved", Toast.LENGTH_SHORT).show()
-            })
 
         builder.show()
 

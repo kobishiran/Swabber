@@ -10,7 +10,7 @@ enum class Difficulty(
 
     EASY(
         "EASY",
-        10, 10, 11, 20_000L,
+        10, 10, 1, 20_000L,
         1, 0.01F, 0.07F, 5, 3
     ),
 
