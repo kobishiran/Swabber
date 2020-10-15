@@ -2,6 +2,8 @@ package com.flyingcircus.swabber
 
 import android.content.DialogInterface
 import android.content.Intent
+import android.content.res.ColorStateList
+import android.graphics.Color
 import android.graphics.Paint
 import androidx.appcompat.app.AppCompatActivity
 import android.os.Bundle
@@ -18,7 +20,7 @@ import kotlinx.coroutines.runBlocking
 
 class WinScreen : AppCompatActivity() {
     lateinit var scoresDb: ScoreDatabase
-    lateinit var tempScores: Array<Score>
+    lateinit var scoresLowerThanNewScore: Array<Score>
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_win_screen)
@@ -44,16 +46,18 @@ class WinScreen : AppCompatActivity() {
 
         // prepare high scores board to be visible
         val high_scores_board: LinearLayout = findViewById(R.id.high_scores_board)
-        var newHighScoreFlag = false
+        var newHighScorePosition = -1
+        var highScoreTexts = arrayOf(topScore1, topScore2, topScore3, topScore4, topScore5)
 
         var numberOfScores = 0
         // check if the score is a new high score
         runBlocking {
-            tempScores = GlobalScope.async { scoresDb.scoresDao().getScoresLowerThen(score.difficulty, score.score) }.await()
+            scoresLowerThanNewScore = GlobalScope.async { scoresDb.scoresDao().getScoresLowerThen(score.difficulty, score.score) }.await()
             numberOfScores = GlobalScope.async { scoresDb.scoresDao().getTopScores(score.difficulty).size }.await()
         }
 
-        if (tempScores.size > 0 || numberOfScores < ScoresDao.topScoresNum) {
+        if (scoresLowerThanNewScore.size > 0 || numberOfScores < ScoresDao.topScoresNum) {
+            Toast.makeText(this, "New High Score!", Toast.LENGTH_SHORT).show()
 
             val builder = AlertDialog.Builder(this)
             val inflater = layoutInflater
@@ -65,8 +69,9 @@ class WinScreen : AppCompatActivity() {
                 score.player_name = editText.text.toString()
                 // Insert a new score to the DB
                 runBlocking {
-                    newHighScoreFlag = insertScore(score, scoresDb)
+                    newHighScorePosition = insertScore(score, scoresDb)
                     // TODO: if (newHighScoreFlag) displayNewHighScoreMassage
+                    highScoreTexts[newHighScorePosition - 1].setTextColor(Color.RED)
                 }
             })
             builder.setNegativeButton(
@@ -77,8 +82,8 @@ class WinScreen : AppCompatActivity() {
                 high_scores_board.visibility = View.VISIBLE
 
                 // Display the leaderboard
-                displayHighScores(scoresDb, score.difficulty, arrayOf(topScore1, topScore2, topScore3, topScore4, topScore5))
-                if (!newHighScoreFlag) Toast.makeText(this, "Your result wasn't saved", Toast.LENGTH_SHORT).show()
+                displayHighScores(scoresDb, score.difficulty, highScoreTexts)
+                if (newHighScorePosition == -1) Toast.makeText(this, "Your result wasn't saved", Toast.LENGTH_SHORT).show()
             })
 
 
@@ -88,7 +93,7 @@ class WinScreen : AppCompatActivity() {
             high_scores_board.visibility = View.VISIBLE
 
             // Display the leaderboard
-            displayHighScores(scoresDb, score.difficulty, arrayOf(topScore1, topScore2, topScore3, topScore4, topScore5))
+            displayHighScores(scoresDb, score.difficulty, highScoreTexts)
             Toast.makeText(this, "Not a new high score... Better luck next time!", Toast.LENGTH_SHORT).show()
         }
 
@@ -112,12 +117,9 @@ class WinScreen : AppCompatActivity() {
             runBlocking {
                 val doneClearing = clearDatabase(scoresDb, score.difficulty)
 
-                val newHighScoreFlag = insertScore(score, scoresDb)
-
                 // Display the leaderboard
-                displayHighScores(scoresDb, score.difficulty, arrayOf(topScore1, topScore2, topScore3, topScore4, topScore5))
-
-                // TODO: if (newHighScoreFlag) displayNewHighScoreMassage
+                displayHighScores(scoresDb, score.difficulty, highScoreTexts)
+                // TODO: Fix clear leaderboard bug
             }
         }
     }

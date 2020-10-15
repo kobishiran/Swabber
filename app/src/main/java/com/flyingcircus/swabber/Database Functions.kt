@@ -6,7 +6,7 @@ import kotlinx.coroutines.async
 import kotlinx.coroutines.runBlocking
 
 
-fun insertScore(score: Score, scoreDB: ScoreDatabase): Boolean {
+fun insertScore(score: Score, scoreDB: ScoreDatabase): Int {
     lateinit var topScores: Array<Score>
 
     // Get the top scores for the relevant difficulty
@@ -16,7 +16,7 @@ fun insertScore(score: Score, scoreDB: ScoreDatabase): Boolean {
     if (topScores.isEmpty()) {
         score.position = 1
         runBlocking { GlobalScope.async { scoreDB.scoresDao().insertNewHighScore(score) } }
-        return true
+        return score.position
     }
 
     // Check if the given score is a new high score. If so, insert it to the DB
@@ -27,7 +27,7 @@ fun insertScore(score: Score, scoreDB: ScoreDatabase): Boolean {
         if (position !in topScores.indices) {
             score.position = position + 1
             runBlocking { GlobalScope.async { scoreDB.scoresDao().insertNewHighScore(score) } }
-            return true
+            return score.position
         }
 
         // check if the score is higher than the existing scores
@@ -45,10 +45,10 @@ fun insertScore(score: Score, scoreDB: ScoreDatabase): Boolean {
                     pushDownPosition++
                 }
             }.join() }  // added join() to force the coroutine to end before updating the display
-            return true  // indicate that a new high score has been added
+            return score.position  // indicate that a new high score has been added
         }
     }
-    return false // indicate that no high score was added
+    return -1 // indicate that no high score was added
 }
 
 fun displayHighScores(scoreDB: ScoreDatabase, difficulty: String, textViews: Array<TextView>) {

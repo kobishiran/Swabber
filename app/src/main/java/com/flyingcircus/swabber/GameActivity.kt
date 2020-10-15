@@ -498,7 +498,7 @@ class GameActivity : AppCompatActivity() {
         println("Total time: $totalTime")
         println("Dead: $deadNum, Wrong Masks: $wrongMasks, Days: $daysCounter")
         val playerScore =
-            ((mean3BV / playerClicks) * 10_000).roundToInt() - 100 * deadNum - 100 * wrongMasks - 50 * (daysCounter - 1)
+            max(((mean3BV / playerClicks) * 5_000).roundToInt() + ((difficulty.BMTime / totalTime) * 5_000).roundToInt() - 100 * deadNum - 100 * wrongMasks - 100 * (daysCounter - 1), 0)
 
         // Create score object
         val scoreObject = Score(difficulty.difficultyName, -1, playerName, playerScore, "Today")
