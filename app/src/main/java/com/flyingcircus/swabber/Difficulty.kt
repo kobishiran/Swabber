@@ -10,21 +10,27 @@ enum class Difficulty(
     val BMTime: Float): Serializable {
 
     EASY(
-        "EASY",
-        10, 10, 1, 20_000L,
-        1, 0.01F, 0.07F, 5, 3, 20F
+        difficultyName = "EASY",
+        boardHeight = 10, boardWidth = 10, initialSickNum = 10,
+        dayLengthInMilli = 20_000L,
+        infectionRadius = 1, Pdeath = 0.01F, Pinfect = 0.07F,
+        maxDeadAllowed = 5, maxWrongMasks = 3, BMTime = 20F
     ),
 
     MEDIUM(
-        "MEDIUM",
-        16, 10, 18, 20_000L,
-        2, 0.03F, 0.05F, 5, 3, 40F
+        difficultyName = "MEDIUM",
+        boardHeight = 16, boardWidth = 10, initialSickNum = 18,
+        dayLengthInMilli = 20_000L,
+        infectionRadius = 2, Pdeath = 0.03F, Pinfect = 0.05F,
+        maxDeadAllowed = 5, maxWrongMasks = 3, BMTime = 40F
     ),
 
     HARD(
-        "HARD",
-        18, 13, 27, 20_000L,
-        3, 0.04F, 0.05F, 8, 3, 80F
+        difficultyName = "HARD",
+        boardHeight = 18, boardWidth = 13, initialSickNum = 27,
+        dayLengthInMilli = 20_000L,
+        infectionRadius = 3, Pdeath = 0.04F, Pinfect = 0.05F,
+        maxDeadAllowed = 8, maxWrongMasks = 3, BMTime = 80F
     ),
 
 /*    CUSTOM_GAME( // TODO not updated

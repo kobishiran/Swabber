@@ -20,7 +20,7 @@ class HomeScreenAnimation : AppCompatActivity() {
     }
 
     fun displayAnimation() {
-        // TODO make opening animation - virus couphing
+        // TODO make opening animation - virus coughing
     }
 
 }

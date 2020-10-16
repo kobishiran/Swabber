@@ -117,9 +117,8 @@ class WinScreen : AppCompatActivity() {
             runBlocking {
                 val doneClearing = clearDatabase(scoresDb, score.difficulty)
 
-                // Display the leaderboard
-                displayHighScores(scoresDb, score.difficulty, highScoreTexts)
-                // TODO: Fix clear leaderboard bug
+                // Clear the leaderboards view
+                highScoreTexts.forEach { textView -> textView.text = "" }
             }
         }
     }

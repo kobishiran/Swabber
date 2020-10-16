@@ -102,6 +102,7 @@ class GameActivity : AppCompatActivity() {
         unknownCounter = difficulty.boardHeight * difficulty.boardWidth
         wrongMasks = 0
         deadNum = 0
+        playerClicks = 0
         timeLeftSecs = difficulty.dayLengthInMilli.toInt() / 1000
         displayTime(timeLeftSecs)
         gameIsRunning = true
@@ -500,8 +501,11 @@ class GameActivity : AppCompatActivity() {
         val playerScore =
             max(((mean3BV / playerClicks) * 5_000).roundToInt() + ((difficulty.BMTime / totalTime) * 5_000).roundToInt() - 100 * deadNum - 100 * wrongMasks - 100 * (daysCounter - 1), 0)
 
+        // Get the current date
+        val date = getCurrentDate()
+
         // Create score object
-        val scoreObject = Score(difficulty.difficultyName, -1, playerName, playerScore, "Today")
+        val scoreObject = Score(difficulty.difficultyName, -1, playerName, playerScore, date)
 
 //        countDownTimer.cancel() // TODO: Add this on actual app
         if (victory) {

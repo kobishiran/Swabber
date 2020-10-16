@@ -1,5 +1,9 @@
 package com.flyingcircus.swabber
 
+import android.icu.text.SimpleDateFormat
+import java.time.LocalDateTime
+import java.time.format.DateTimeFormatter
+import java.util.*
 import kotlin.random.Random
 
 fun getBoard3BV(gameBoard: Array<Array<Person>>): Int {
@@ -145,6 +149,12 @@ fun printExposedBoard(gameBoard: Array<Array<Person>>, boardHeight: Int, boardWi
         }
         println("")
     }
+}
+
+fun getCurrentDate(): String {
+    val date = Date()
+    val formatter = java.text.SimpleDateFormat("dd/MM/yy")
+    return formatter.format(date).toString()
 }
 
 val initialSickNum = 10
