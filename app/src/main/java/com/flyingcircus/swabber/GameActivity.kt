@@ -357,6 +357,13 @@ class GameActivity : AppCompatActivity() {
     }
 
     private fun nightCycle() {
+
+/*        import kotlin.concurrent.schedule
+                Timer("SettingUp", false).schedule(500) {
+                    doSomething()
+                }*/
+
+
         // Display a night starting massage (must be called from main UI thread)
         this@GameActivity.runOnUiThread {
             Toast.makeText(this, ">>> A night has begun...! <<<", Toast.LENGTH_SHORT).show()
