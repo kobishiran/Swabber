@@ -18,4 +18,6 @@
     <string name="return_game">Return to game</string>
     <string name="paused_game">The Game is paused</string>
     <string name="x">X</string>
+    <string name="yes">yes</string>
+    <string name="no">no</string>
 </resources>

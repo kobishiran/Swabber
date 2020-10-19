@@ -11,6 +11,7 @@ import android.widget.*
 import androidx.appcompat.app.AppCompatActivity
 import kotlinx.android.synthetic.main.activity_main.*
 import java.lang.Math.abs
+import java.lang.Math.min
 import java.util.*
 import kotlin.collections.ArrayList
 import kotlin.concurrent.timer
@@ -35,6 +36,7 @@ class GameActivity : AppCompatActivity() {
     lateinit var countDownTimer: Timer
     var board3BVList = ArrayList<Int>()
     val playerName = "???"  // temp placeholder
+    var SkipPause: Boolean = true // skip the first pause screen
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -47,10 +49,7 @@ class GameActivity : AppCompatActivity() {
         displayInitBoard(difficulty.boardHeight, difficulty.boardWidth)
         boardClickListener(difficulty.boardHeight, difficulty.boardWidth)
         pauseButton.setOnClickListener {
-            if (gameIsRunning) {
                 showPause()
-                //  pauseButton.text = "Resume"
-            }
         }
         newGameButton.setOnClickListener {
             countDownTimer.cancel()
@@ -80,13 +79,13 @@ class GameActivity : AppCompatActivity() {
         AlertDialog.Builder(this)
             .setTitle("Really Exit?")
             .setMessage("Are you sure you want to exit?")
-            .setNegativeButton(android.R.string.no, object : DialogInterface.OnClickListener {
+            .setNegativeButton(R.string.no, object : DialogInterface.OnClickListener {
                 override fun onClick(arg0: DialogInterface?, arg1: Int) {
                     startTimer()
                     gameIsRunning = true
                 }
             })
-            .setPositiveButton(android.R.string.yes, object : DialogInterface.OnClickListener {
+            .setPositiveButton(R.string.yes, object : DialogInterface.OnClickListener {
                 override fun onClick(arg0: DialogInterface?, arg1: Int) {
                     super@GameActivity.onBackPressed()
                 }
@@ -94,11 +93,15 @@ class GameActivity : AppCompatActivity() {
     }
 
     override fun onPause() {
-        if (gameIsRunning) pauseButton.performClick()
+        countDownTimer.cancel()
+        gameIsRunning = false
         super.onPause()
     }
 
     override fun onResume() {
+        if (!SkipPause) {
+            showPause()
+        } else SkipPause = false
         super.onResume()
         //   pauseButton.performClick() // Add if you want automatic resume, but it pauses on first launch
     }
@@ -608,7 +611,9 @@ class GameActivity : AppCompatActivity() {
         pauseday.text = "Day $daysCounter"
 
         val pausetime = dialog.findViewById(R.id.pausetime) as TextView
-        pausetime.text = "Remaining Time $timeLeftSecs"
+        val remainingtime =
+            min(difficulty.dayLengthInMilli.toInt() / 1000, timeLeftSecs + 1) // timeLeftSecs has a delay of 1
+        pausetime.text = "Remaining Time $remainingtime"
 
         val pausex = dialog.findViewById(R.id.pausex) as TextView
         val returngame = dialog.findViewById(R.id.returngame) as Button
