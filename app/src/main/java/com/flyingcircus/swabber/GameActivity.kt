@@ -1,12 +1,13 @@
 package com.flyingcircus.swabber
 
+import android.app.AlertDialog
+import android.app.Dialog
+import android.content.DialogInterface
 import android.content.Intent
 import android.graphics.Color
 import android.os.Bundle
-import android.widget.ImageView
-import android.widget.LinearLayout
-import android.widget.TextView
-import android.widget.Toast
+import android.view.Window
+import android.widget.*
 import androidx.appcompat.app.AppCompatActivity
 import kotlinx.android.synthetic.main.activity_main.*
 import java.lang.Math.abs
@@ -47,13 +48,8 @@ class GameActivity : AppCompatActivity() {
         boardClickListener(difficulty.boardHeight, difficulty.boardWidth)
         pauseButton.setOnClickListener {
             if (gameIsRunning) {
-                countDownTimer.cancel()
-                gameIsRunning = false
-                pauseButton.text = "Resume"
-            } else {
-                startTimer();
-                gameIsRunning = true
-                pauseButton.text = "Pause"
+                showPause()
+                //  pauseButton.text = "Resume"
             }
         }
         newGameButton.setOnClickListener {
@@ -70,12 +66,31 @@ class GameActivity : AppCompatActivity() {
             startTimer()
         }
         startTimer()
-        pauseButton.performClick()
+        //   pauseButton.performClick()
     }
 
     override fun onDestroy() {
         countDownTimer.cancel()  // make sure the counter is stopped before exiting
         super.onDestroy()
+    }
+
+    override fun onBackPressed() {
+        countDownTimer.cancel()
+        gameIsRunning = false
+        AlertDialog.Builder(this)
+            .setTitle("Really Exit?")
+            .setMessage("Are you sure you want to exit?")
+            .setNegativeButton(android.R.string.no, object : DialogInterface.OnClickListener {
+                override fun onClick(arg0: DialogInterface?, arg1: Int) {
+                    startTimer()
+                    gameIsRunning = true
+                }
+            })
+            .setPositiveButton(android.R.string.yes, object : DialogInterface.OnClickListener {
+                override fun onClick(arg0: DialogInterface?, arg1: Int) {
+                    super@GameActivity.onBackPressed()
+                }
+            }).create().show()
     }
 
     override fun onPause() {
@@ -85,7 +100,7 @@ class GameActivity : AppCompatActivity() {
 
     override fun onResume() {
         super.onResume()
-        pauseButton.performClick() // Add if you want automatic resume, but it pauses on first launch
+        //   pauseButton.performClick() // Add if you want automatic resume, but it pauses on first launch
     }
 
     private fun initializeBoard() {
@@ -573,7 +588,63 @@ class GameActivity : AppCompatActivity() {
     // extension function to turn bool to int
     fun Boolean.toInt() = if (this) 1 else 0
 
+    fun showPause() {
+        countDownTimer.cancel()
+        gameIsRunning = false
+
+        val dialog = Dialog(this)
+        dialog.requestWindowFeature(Window.FEATURE_NO_TITLE)
+        dialog.setCancelable(true)
+        dialog.setContentView(R.layout.pause_popup)
+
+        val pauseday = dialog.findViewById(R.id.pauseday) as TextView
+        pauseday.text = "Day $daysCounter"
+
+        val pausetime = dialog.findViewById(R.id.pausetime) as TextView
+        pausetime.text = "Remaining Time $timeLeftSecs"
+
+        val pausex = dialog.findViewById(R.id.pausex) as TextView
+        val returngame = dialog.findViewById(R.id.returngame) as Button
+        val returnmenu = dialog.findViewById(R.id.returnmenu) as TextView
+
+        pausex.setOnClickListener {
+            countDownTimer.cancel()
+            startTimer()
+            gameIsRunning = true
+            dialog.dismiss()
+        }
+
+        returngame.setOnClickListener {
+            countDownTimer.cancel()
+            startTimer()
+            gameIsRunning = true
+            dialog.dismiss()
+        }
+
+        returnmenu.setOnClickListener {
+            countDownTimer.cancel()
+            startActivity(Intent(this@GameActivity, HomeScreen::class.java))
+        }
+
+        dialog.setOnDismissListener {
+            countDownTimer.cancel()
+            startTimer()
+            gameIsRunning = true
+            dialog.dismiss()
+        }
+
+        dialog.show()
+
+        // Set the dialog to percentage of the screen
+        val metrics = resources.displayMetrics
+        val width = metrics.widthPixels
+        val height = metrics.heightPixels
+        dialog.window!!.setLayout(((0.9 * width).toInt()), ((0.9 * height).toInt()))
+
+    }
 }
+
+
 
 class Person(val row: Int, val col: Int, genderDecision: Boolean) {
     var isSick = false

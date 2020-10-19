@@ -14,4 +14,8 @@
     <string name="start">START</string>
     <string name="high_scores">HIGH SCORES</string>
     <string name="enter_your_name">ENTER YOUR NAME</string>
+    <string name="return_menu">Return to menu</string>
+    <string name="return_game">Return to game</string>
+    <string name="paused_game">The Game is paused</string>
+    <string name="x">X</string>
 </resources>

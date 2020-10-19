@@ -1,0 +1,68 @@
+<?xml version="1.0" encoding="utf-8"?>
+
+<androidx.constraintlayout.widget.ConstraintLayout
+        xmlns:android="http://schemas.android.com/apk/res/android"
+        xmlns:app="http://schemas.android.com/apk/res-auto"
+        xmlns:tools="http://schemas.android.com/tools"
+        android:id="@+id/pausePopup"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:background="@drawable/pausebackground"
+>
+
+    <TextView android:layout_width="wrap_content" android:layout_height="wrap_content"
+              tools:text="Day 5" app:layout_constraintEnd_toEndOf="parent"
+              app:layout_constraintStart_toStartOf="parent"
+              app:layout_constraintBottom_toBottomOf="parent" app:layout_constraintTop_toTopOf="parent"
+              app:layout_constraintVertical_bias="0.2"
+              android:textSize="28sp" android:id="@+id/pauseday"/>
+    <TextView android:layout_width="wrap_content" android:layout_height="wrap_content"
+              tools:text="Time Left 5" app:layout_constraintEnd_toEndOf="parent"
+              app:layout_constraintStart_toStartOf="parent"
+              app:layout_constraintBottom_toBottomOf="parent" app:layout_constraintTop_toTopOf="parent"
+              app:layout_constraintVertical_bias="0.25"
+              android:textSize="18sp" android:layout_marginTop="8dp" android:id="@+id/pausetime"/>
+    <TextView
+            android:layout_width="305dp"
+            android:layout_height="92dp"
+            android:id="@+id/textpausedgame" android:textSize="36sp"
+            app:layout_constraintEnd_toEndOf="parent" app:layout_constraintStart_toStartOf="parent"
+            android:textColor="#000000" android:gravity="center"
+            app:layout_constraintTop_toTopOf="parent" app:layout_constraintBottom_toBottomOf="parent"
+            app:layout_constraintVertical_bias="0.4" android:text="@string/paused_game"/>
+    <Button
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content" android:id="@+id/returngame"
+            app:layout_constraintEnd_toEndOf="parent" app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintHorizontal_bias="0.5" app:layout_constraintTop_toBottomOf="@+id/textpausedgame"
+            android:layout_marginTop="100dp"
+            android:background="@drawable/circlebutton" android:text="@string/return_game"/>
+    <Button
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content" android:id="@+id/returnmenu"
+            app:layout_constraintEnd_toEndOf="parent" app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintHorizontal_bias="0.5" app:layout_constraintTop_toBottomOf="@+id/returngame"
+            android:layout_marginTop="30dp"
+            android:background="@drawable/circlebutton" android:text="@string/return_menu" android:textColor="#3C206E"/>
+    <TextView
+            android:layout_width="30dp"
+            android:layout_height="30dp"
+            android:id="@+id/pausex"
+            android:textSize="20dp"
+            android:gravity="center"
+            android:textColor="#000000"
+            android:background="@drawable/circlebackground"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintTop_toTopOf="parent" android:layout_marginTop="8dp" android:layout_marginRight="8dp"
+            android:layout_marginEnd="8dp" android:text="@string/x"/>
+    <ImageView
+            android:layout_width="36dp"
+            android:layout_height="36dp" app:srcCompat="@drawable/gear" android:id="@+id/pausegear"
+            app:layout_constraintStart_toStartOf="parent" app:layout_constraintTop_toTopOf="parent"
+            android:layout_margin="8dp"/>
+    <ImageView
+            android:layout_width="36dp"
+            android:layout_height="36dp" app:srcCompat="@drawable/music" android:id="@+id/pausemusic"
+            app:layout_constraintStart_toEndOf="@+id/pausegear" app:layout_constraintTop_toTopOf="parent"
+            android:layout_margin="8dp"/>
+</androidx.constraintlayout.widget.ConstraintLayout>
