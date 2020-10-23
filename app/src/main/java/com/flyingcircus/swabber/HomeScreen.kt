@@ -2,19 +2,42 @@ package com.flyingcircus.swabber
 
 import android.app.ProgressDialog.show
 import android.content.Intent
+import android.media.MediaPlayer
 import androidx.appcompat.app.AppCompatActivity
 import android.os.Bundle
 import android.widget.RadioButton
 import android.widget.RadioGroup
 import android.widget.Toast
 import kotlinx.android.synthetic.main.activity_home_screen.*
+import kotlinx.coroutines.GlobalScope
+import kotlinx.coroutines.launch
 
 class HomeScreen : AppCompatActivity() {
+    // TODO: Add musicPlayer and musicRunning to HomeScreen Companion Object?
+    lateinit var musicPlayer : MediaPlayer
+    var musicRunning = true
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_home_screen)
 
         lateinit var difficulty: Difficulty
+
+        // Start Background Music
+        musicPlayer = MediaPlayer.create(this@HomeScreen, R.raw.swabber_theme)
+        musicPlayer.isLooping = true
+        musicPlayer.setVolume(100F, 100F)
+        musicPlayer.start()
+
+        // Set music button listener
+        buttonMusic.setOnClickListener {
+            if (musicRunning) {
+                pauseMusic()
+            } else {
+                startMusic()
+            }
+        }
+
+        // Set Start button listener
         buttonStart.setOnClickListener {
             val radioGroupMode: RadioGroup = findViewById(R.id.radioGroupMode)
             val radioID = radioGroupMode.checkedRadioButtonId // if not check return id = -1
@@ -34,5 +57,32 @@ class HomeScreen : AppCompatActivity() {
             }
             else Toast.makeText(this, "Please select game mode", Toast.LENGTH_SHORT).show()
         }
+    }
+
+    override fun onPause() {
+        musicPlayer.pause()
+        super.onPause()
+    }
+
+    override fun onResume() {
+        super.onResume()
+        if (musicRunning) startMusic()
+    }
+
+    override fun onDestroy() {
+        musicPlayer.release()
+        super.onDestroy()
+    }
+
+    fun pauseMusic() {
+        buttonMusic.setImageResource(R.drawable.music_off)
+        musicPlayer.pause()
+        musicRunning = false
+    }
+
+    fun startMusic() {
+        buttonMusic.setImageResource(R.drawable.music_on)
+        musicPlayer.start()
+        musicRunning = true
     }
 }
