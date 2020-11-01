@@ -1,6 +1,5 @@
 package com.flyingcircus.swabber
 
-import android.app.ProgressDialog.show
 import android.content.Intent
 import android.media.MediaPlayer
 import androidx.appcompat.app.AppCompatActivity
@@ -9,13 +8,10 @@ import android.widget.RadioButton
 import android.widget.RadioGroup
 import android.widget.Toast
 import kotlinx.android.synthetic.main.activity_home_screen.*
-import kotlinx.coroutines.GlobalScope
-import kotlinx.coroutines.launch
 
 class HomeScreen : AppCompatActivity() {
-    // TODO: Add musicPlayer and musicRunning to HomeScreen Companion Object?
-    lateinit var musicPlayer : MediaPlayer
-    var musicRunning = true
+    // TODO: Add musicPlayer and musicRunning to HomeScreen Companion Object? / Create a SwabberMusicPlayer Class?
+    var restartMusic = false
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_home_screen)
@@ -23,17 +19,17 @@ class HomeScreen : AppCompatActivity() {
         lateinit var difficulty: Difficulty
 
         // Start Background Music
-        musicPlayer = MediaPlayer.create(this@HomeScreen, R.raw.swabber_theme)
-        musicPlayer.isLooping = true
-        musicPlayer.setVolume(100F, 100F)
-        musicPlayer.start()
+        SwabberMusic.swabberTheme = MediaPlayer.create(this@HomeScreen, R.raw.swabber_theme)
+        SwabberMusic.swabberTheme.isLooping = true
+        SwabberMusic.swabberTheme.setVolume(1F, 1F)
+        SwabberMusic.swabberTheme.start()
 
         // Set music button listener
         buttonMusic.setOnClickListener {
-            if (musicRunning) {
-                pauseMusic()
+            if (SwabberMusic.musicUnmuted) {
+                muteMusic()
             } else {
-                startMusic()
+                unmuteMusic()
             }
         }
 
@@ -53,6 +49,7 @@ class HomeScreen : AppCompatActivity() {
                         Toast.makeText(this, "סבלנות חחח עוד לא פיתחנו...\n תשחק בינתיים ב OUTBREAK", Toast.LENGTH_SHORT).show(); //difficulty = Difficulty.CUSTOM_GAME
                     }
                 }
+                restartMusic = true
                 startActivity(Intent(this, GameActivity::class.java).putExtra("Difficulty", difficulty))
             }
             else Toast.makeText(this, "Please select game mode", Toast.LENGTH_SHORT).show()
@@ -60,29 +57,33 @@ class HomeScreen : AppCompatActivity() {
     }
 
     override fun onPause() {
-        musicPlayer.pause()
+        if (restartMusic) SwabberMusic.musicFadeOut()
+        else SwabberMusic.swabberTheme.pause()
         super.onPause()
     }
 
     override fun onResume() {
         super.onResume()
-        if (musicRunning) startMusic()
+        // if returning from the game, start the music from the beginning. Otherwise (if left the app for example), continue
+        // from the same spot.
+        if (restartMusic) { SwabberMusic.swabberTheme.seekTo(0) ; restartMusic = false } // reset music to beginning
+        SwabberMusic.swabberTheme.start()
     }
 
     override fun onDestroy() {
-        musicPlayer.release()
+        SwabberMusic.swabberTheme.release()
         super.onDestroy()
     }
 
-    fun pauseMusic() {
+    fun muteMusic() {
+        // Update the music button to muted, and mute the music
         buttonMusic.setImageResource(R.drawable.music_off)
-        musicPlayer.pause()
-        musicRunning = false
+        SwabberMusic.muteMusic()
     }
 
-    fun startMusic() {
+    fun unmuteMusic() {
+        // Update the music button to unmuted, and unmute the music
         buttonMusic.setImageResource(R.drawable.music_on)
-        musicPlayer.start()
-        musicRunning = true
+        SwabberMusic.unmuteMusic()
     }
 }
