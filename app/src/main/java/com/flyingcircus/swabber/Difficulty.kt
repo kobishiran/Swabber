@@ -1,6 +1,7 @@
 package com.flyingcircus.swabber
 
 import java.io.Serializable
+import kotlin.random.Random
 
 enum class Difficulty(
     val difficultyName: String,
@@ -11,7 +12,7 @@ enum class Difficulty(
 
     EASY(
         difficultyName = "EASY",
-        boardHeight = 10, boardWidth = 10, initialSickNum = 10,
+        boardHeight = 10, boardWidth = 10, initialSickNum = Random.nextInt(10, 14),
         dayLengthInMilli = 20_000L,
         infectionRadius = 1, Pdeath = 0.01F, Pinfect = 0.07F,
         maxDeadAllowed = 5, maxWrongMasks = 3, BMTime = 20F
@@ -19,18 +20,18 @@ enum class Difficulty(
 
     MEDIUM(
         difficultyName = "MEDIUM",
-        boardHeight = 16, boardWidth = 10, initialSickNum = 18,
+        boardHeight = 16, boardWidth = 10, initialSickNum = Random.nextInt(17, 22),
         dayLengthInMilli = 20_000L,
         infectionRadius = 2, Pdeath = 0.03F, Pinfect = 0.05F,
-        maxDeadAllowed = 5, maxWrongMasks = 3, BMTime = 40F
+        maxDeadAllowed = 5, maxWrongMasks = 2, BMTime = 40F
     ),
 
     HARD(
         difficultyName = "HARD",
-        boardHeight = 18, boardWidth = 13, initialSickNum = 27,
+        boardHeight = 18, boardWidth = 13, initialSickNum = Random.nextInt(24, 29),
         dayLengthInMilli = 20_000L,
         infectionRadius = 3, Pdeath = 0.04F, Pinfect = 0.05F,
-        maxDeadAllowed = 8, maxWrongMasks = 3, BMTime = 80F
+        maxDeadAllowed = 8, maxWrongMasks = 2, BMTime = 80F
     ),
 
 /*    CUSTOM_GAME( // TODO not updated

@@ -6,10 +6,15 @@ import android.content.DialogInterface
 import android.content.Intent
 import android.graphics.Color
 import android.os.Bundle
+import android.os.Handler
+import android.os.Looper
+import android.transition.Visibility
+import android.view.View
 import android.view.Window
 import android.widget.*
 import androidx.appcompat.app.AppCompatActivity
 import kotlinx.android.synthetic.main.activity_main.*
+import kotlinx.coroutines.*
 import java.lang.Math.abs
 import java.lang.Math.min
 import java.util.*
@@ -88,6 +93,7 @@ class GameActivity : AppCompatActivity() {
             .setPositiveButton(R.string.yes, object : DialogInterface.OnClickListener {
                 override fun onClick(arg0: DialogInterface?, arg1: Int) {
                     super@GameActivity.onBackPressed()
+                    finish()  // make sure the activity is destroyed when leaving
                 }
             }).create().show()
     }
@@ -353,19 +359,12 @@ class GameActivity : AppCompatActivity() {
             }
             updateDisplay(row, col)
         } else {
-            // TODO: Show error: Already exposed!
             Toast.makeText(this, "Already exposed!", Toast.LENGTH_SHORT).show()
         }
         checkVictory()
     }
 
     private fun nightCycle() {
-
-/*        import kotlin.concurrent.schedule
-                Timer("SettingUp", false).schedule(500) {
-                    doSomething()
-                }*/
-
 
         // Display a night starting massage (must be called from main UI thread)
         this@GameActivity.runOnUiThread {
@@ -509,8 +508,20 @@ class GameActivity : AppCompatActivity() {
             }
     }
 
+    private fun exposeBoard() {
+        gameBoard.forEach { arrayOfPersons ->
+            arrayOfPersons.forEach { person ->
+                person.contactNumber = countNeighbors(person.row, person.col)
+                person.isExposed = true
+                updateDisplay(person.row, person.col)
+            }
+        }
+    }
+
     private fun gameOver(victory: Boolean, reason: String) {
-        // TODO: Create Score object / Pass raw score to end screen (if player name is not yet known)
+        // Expose the entire board
+        exposeBoard()
+
         // calculate mean 3BV score
         var mean3BV = 0F
         val scoreWeights = (board3BVList.size downTo 1).toList()
@@ -532,29 +543,35 @@ class GameActivity : AppCompatActivity() {
         // Create score object
         val scoreObject = Score(difficulty.difficultyName, -1, playerName, playerScore, date)
 
-//        countDownTimer.cancel() // TODO: Add this on actual app
+          countDownTimer.cancel() // TODO: Add this on actual app
+        val nextActivity : Intent
         if (victory) {
             Toast.makeText(this, "Winner!", Toast.LENGTH_SHORT).show()
-            startActivity(Intent(this, WinScreen::class.java).putExtra("Difficulty", difficulty).putExtra("Score", scoreObject))
+            nextActivity = Intent(this, WinScreen::class.java).putExtra("Score", scoreObject)  // add score Extra if game is won
         } else when (reason) { // TODO: different lose screens \\\ we need to adjust code for custom game (doesnt have difficulty)
             "Death" -> {
                 Toast.makeText(this, "You let too many people die! You LOSE!!", Toast.LENGTH_SHORT).show()
-                startActivity(Intent(this, LoseScreen::class.java).putExtra("Difficulty", difficulty))
+                nextActivity = Intent(this, LoseScreen::class.java)
             };
             "Economy" -> {
                 Toast.makeText(this, "The economy collapsed! you LOSE!", Toast.LENGTH_SHORT).show()
-                startActivity(Intent(this, LoseScreen::class.java).putExtra("Difficulty", difficulty))
+                nextActivity = Intent(this, LoseScreen::class.java)
             }
             "Corona" -> {
                 Toast.makeText(this, "You got infected with Corona! Loser!", Toast.LENGTH_SHORT).show()
-                startActivity(Intent(this, LoseScreen::class.java).putExtra("Difficulty", difficulty))
+                nextActivity = Intent(this, LoseScreen::class.java)
             }
             else -> {
                 Toast.makeText(this, "Loser!", Toast.LENGTH_SHORT).show()
-                startActivity(Intent(this, LoseScreen::class.java).putExtra("Difficulty", difficulty))
+                nextActivity = Intent(this, LoseScreen::class.java)
             }
         }
-        finish()
+
+        // Delay for 2 seconds, then go to next activity
+        Handler(Looper.getMainLooper()).postDelayed(Runnable {
+            startActivity(nextActivity.putExtra("Difficulty", difficulty))
+            finish()
+        }, 2000)
     }
 
     private fun checkLosingByDeath() {
