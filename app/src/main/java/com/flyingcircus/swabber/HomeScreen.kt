@@ -10,7 +10,6 @@ import android.widget.Toast
 import kotlinx.android.synthetic.main.activity_home_screen.*
 
 class HomeScreen : AppCompatActivity() {
-    // TODO: Add musicPlayer and musicRunning to HomeScreen Companion Object? / Create a SwabberMusicPlayer Class?
     var restartMusic = false
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -75,13 +74,13 @@ class HomeScreen : AppCompatActivity() {
         super.onDestroy()
     }
 
-    fun muteMusic() {
+    private fun muteMusic() {
         // Update the music button to muted, and mute the music
         buttonMusic.setImageResource(R.drawable.music_off)
         SwabberMusic.muteMusic()
     }
 
-    fun unmuteMusic() {
+    private fun unmuteMusic() {
         // Update the music button to unmuted, and unmute the music
         buttonMusic.setImageResource(R.drawable.music_on)
         SwabberMusic.unmuteMusic()

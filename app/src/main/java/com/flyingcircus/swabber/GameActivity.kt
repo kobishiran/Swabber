@@ -8,13 +8,11 @@ import android.graphics.Color
 import android.os.Bundle
 import android.os.Handler
 import android.os.Looper
-import android.transition.Visibility
-import android.view.View
 import android.view.Window
 import android.widget.*
 import androidx.appcompat.app.AppCompatActivity
 import kotlinx.android.synthetic.main.activity_main.*
-import kotlinx.coroutines.*
+import kotlinx.coroutines.Runnable
 import java.lang.Math.abs
 import java.lang.Math.min
 import java.util.*
@@ -551,15 +549,15 @@ class GameActivity : AppCompatActivity() {
         } else when (reason) { // TODO: different lose screens \\\ we need to adjust code for custom game (doesnt have difficulty)
             "Death" -> {
                 Toast.makeText(this, "You let too many people die! You LOSE!!", Toast.LENGTH_SHORT).show()
-                nextActivity = Intent(this, LoseScreen::class.java)
+                nextActivity = Intent(this, LoseDeath::class.java)
             };
             "Economy" -> {
                 Toast.makeText(this, "The economy collapsed! you LOSE!", Toast.LENGTH_SHORT).show()
-                nextActivity = Intent(this, LoseScreen::class.java)
+                nextActivity = Intent(this, LoseEconomy::class.java)
             }
             "Corona" -> {
                 Toast.makeText(this, "You got infected with Corona! Loser!", Toast.LENGTH_SHORT).show()
-                nextActivity = Intent(this, LoseScreen::class.java)
+                nextActivity = Intent(this, LoseCorona::class.java)
             }
             else -> {
                 Toast.makeText(this, "Loser!", Toast.LENGTH_SHORT).show()
