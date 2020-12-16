@@ -9,6 +9,14 @@
             android:roundIcon="@drawable/iconplaystore"
             android:supportsRtl="false"
             android:theme="@style/Theme.AppCompat.DayNight.NoActionBar">
+        <service
+                android:name=".SwabberMusicService"
+                android:enabled="true"
+                android:exported="false">
+        </service>
+
+        <activity android:name=".DifficultyChoice">
+        </activity>
         <activity android:name=".LoseEconomy">
         </activity>
         <activity android:name=".LoseDeath">

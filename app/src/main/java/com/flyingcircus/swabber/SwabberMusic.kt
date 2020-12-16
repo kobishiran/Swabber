@@ -1,54 +1,31 @@
 package com.flyingcircus.swabber
 
-import android.media.MediaPlayer
-import kotlinx.coroutines.GlobalScope
-import kotlinx.coroutines.delay
-import kotlinx.coroutines.launch
+import android.app.Service
+import android.content.Context
+import android.content.Intent
 
-class SwabberMusic {
+class SwabberMusic(appContext: Context) {
+    val context = appContext
     companion object {
         // Public Variables
-        lateinit var swabberTheme : MediaPlayer
-        var musicUnmuted = true
-        var musicVolume = 1F
+//        val swabberThemeService = SwabberMusicService("swabber_theme")
+//        lateinit var thisContext: Context
 
-
-        // Public Methods
-        fun muteMusic() {
-            swabberTheme.setVolume(0F, 0F)
-            musicUnmuted = false
+        fun startTheme() {
+            // TODO: create the musicPlayer object and start it
+//            val bla = Intent(appContext, SwabberMusicService::class.java)
         }
 
-        fun unmuteMusic() {
-            swabberTheme.setVolume(musicVolume, musicVolume)
-            musicUnmuted = true
+        fun pauseTheme() {
+            // TODO: pause the music player
         }
 
-        fun musicFadeOut() {
-            if (musicUnmuted) {
-                var tempVolume = musicVolume
-                GlobalScope.launch {
-                    while (tempVolume > 0) {
-                        tempVolume -= 0.01F
-                        swabberTheme.setVolume(tempVolume, tempVolume)
-                        delay(7)
-                    }
-                    swabberTheme.pause()
-                    swabberTheme.setVolume(musicVolume, musicVolume)  // reset volume to current level for the next time the music is played
-                }
-            }
+        fun resumeMusic() {
+            // TODO: Only resume the music player
         }
 
-        fun musicFadeIn() {
-            var tempVolume = 0F
-            GlobalScope.launch {
-                swabberTheme.start()
-                while (tempVolume < musicVolume) {
-                    tempVolume += 0.01F
-                    swabberTheme.setVolume(tempVolume, tempVolume)
-                    delay(7)
-                }
-            }
+        fun stopTheme() {
+            // TODO: stop and release the music player (destroy the service)
         }
     }
 

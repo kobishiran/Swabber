@@ -403,7 +403,6 @@ class GameActivity : AppCompatActivity() {
                     person.daysInfected++
             }
         }
-        // TODO: remove the hasMask condition to allow people to grow sicker even with a mask? (only matters if the mask is removed at a later time)
 
         // find every sick person that has no mask and was infected at least 1 full day
         gameBoard.forEach { arrayOfPersons ->
@@ -650,7 +649,10 @@ class GameActivity : AppCompatActivity() {
 
         returnmenu.setOnClickListener {
             countDownTimer.cancel()
-            startActivity(Intent(this@GameActivity, HomeScreen::class.java))
+//            startActivity(Intent(this@GameActivity, HomeScreen::class.java))
+            super@GameActivity.onBackPressed()
+            // TODO: Change to simulate "back" press programmatically? (but without dialog)
+            finish()
         }
 
         dialog.setOnDismissListener {
