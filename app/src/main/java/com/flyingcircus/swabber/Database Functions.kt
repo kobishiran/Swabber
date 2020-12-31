@@ -56,6 +56,16 @@ fun displayHighScores(scoreDB: ScoreDatabase, difficulty: String, textViews: Arr
     // Get the top scores for the relevant difficulty
     runBlocking { topScores = GlobalScope.async { scoreDB.scoresDao().getTopScores(difficulty) }.await() }
 
+    // clear the current view
+    for (position in 0 until ScoresDao.topScoresNum) {
+        textViews[position].text = ""
+    }
+
+    if (topScores.isEmpty()) {
+        textViews[0].text = "I'm empty!\nPlay some games to fix this!"
+        return
+    }
+
     var tempTopScore: Score
     // Display each score in a different text box
     for (position in 0 until kotlin.math.min(ScoresDao.topScoresNum, topScores.size)) {

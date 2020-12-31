@@ -87,9 +87,9 @@ class SwabberMusicService : Service() {
                     swabberTheme.setVolume(tempVolume, tempVolume)
                     delay(7)
                 }
-                swabberTheme.pause()
-                swabberTheme.setVolume(musicVolume, musicVolume)  // reset volume to current level for the next time the music is played
-                swabberTheme.seekTo(0)  // reset music to start, so that next time it starts from the beginning
+//                swabberTheme.pause()
+//                swabberTheme.setVolume(musicVolume, musicVolume)  // reset volume to current level for the next time the music is played
+//                swabberTheme.seekTo(0)  // reset music to start, so that next time it starts from the beginning
                 stopSelf()
             }
         }

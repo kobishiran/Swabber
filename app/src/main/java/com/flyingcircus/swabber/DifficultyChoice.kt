@@ -25,6 +25,12 @@ class DifficultyChoice : AppCompatActivity() {
             swabberThemeService = binder.getService()  // get the service object
             themeServiceBound = true
             println("DIFFICULTY CHOICE: BIND TO SERVICE")
+            // initialize music button according to music mute state
+            when (swabberThemeService.musicMuted) {
+                true -> buttonMusicDifficulty.setImageResource(R.drawable.music_off)
+                else -> buttonMusicDifficulty.setImageResource(R.drawable.music_on)
+            }
+
         }
 
         override fun onServiceDisconnected(name: ComponentName?) {
@@ -54,10 +60,13 @@ class DifficultyChoice : AppCompatActivity() {
         }
 
         // Set music button listener
-        buttonMusic.setOnClickListener {
-            if (swabberThemeService.musicMuted) {
+        buttonMusicDifficulty.setOnClickListener {
+            println("BUTTON MUSIC DIFFICULTY PRESSED")
+            if (!swabberThemeService.musicMuted) {
+                println("BUTTON MUSIC DIFFICULTY: MUTING MUSIC")
                 muteMusicButton()
             } else {
+                println("BUTTON MUSIC DIFFICULTY: UNMUTING MUSIC")
                 unmuteMusicButton()
             }
         }
@@ -83,6 +92,8 @@ class DifficultyChoice : AppCompatActivity() {
 
     override fun onStart() {
         super.onStart()
+
+
         toGame = false  // reset to initial value
         toNewActivity = false  // reset to initial value
         if (!themeServiceBound) {  // bind to the service if not bounded already
@@ -94,6 +105,8 @@ class DifficultyChoice : AppCompatActivity() {
         if (this::swabberThemeService.isInitialized && !swabberThemeService.isRunning) {
             swabberThemeService.resumeMusic()
         }
+
+
     }
 
     override fun onBackPressed() {
@@ -128,13 +141,13 @@ class DifficultyChoice : AppCompatActivity() {
 
     private fun muteMusicButton() {
         // Update the music button to muted, and mute the music
-        buttonMusic.setImageResource(R.drawable.music_off)
+        buttonMusicDifficulty.setImageResource(R.drawable.music_off)
         swabberThemeService.muteMusic()
     }
 
     private fun unmuteMusicButton() {
         // Update the music button to unmuted, and unmute the music
-        buttonMusic.setImageResource(R.drawable.music_on)
+        buttonMusicDifficulty.setImageResource(R.drawable.music_on)
         swabberThemeService.unmuteMusic()
     }
 }

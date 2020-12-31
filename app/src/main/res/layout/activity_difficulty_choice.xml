@@ -71,11 +71,12 @@
             android:layout_height="34dp"
             android:layout_marginTop="20dp"
             app:layout_constraintTop_toTopOf="parent"
-            app:layout_constraintEnd_toStartOf="@+id/buttonMusic"
+            app:layout_constraintEnd_toStartOf="@+id/buttonMusicDifficulty"
             android:layout_marginRight="20dp" android:layout_marginEnd="20dp"/>
     <ImageView
+            android:id="@+id/buttonMusicDifficulty"
             android:layout_width="36dp"
-            android:layout_height="32dp" app:srcCompat="@drawable/music_on" android:id="@+id/buttonMusic"
+            android:layout_height="32dp" app:srcCompat="@drawable/music_on"
             app:layout_constraintTop_toTopOf="parent"
             android:layout_marginTop="20dp" app:layout_constraintEnd_toEndOf="parent" android:layout_marginRight="20dp"
             android:layout_marginEnd="20dp"/>

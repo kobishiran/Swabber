@@ -2,7 +2,6 @@ package com.flyingcircus.swabber
 
 import android.content.DialogInterface
 import android.content.Intent
-import android.content.res.ColorStateList
 import android.graphics.Color
 import android.graphics.Paint
 import androidx.appcompat.app.AppCompatActivity
@@ -21,6 +20,7 @@ import kotlinx.coroutines.runBlocking
 class WinScreen : AppCompatActivity() {
     lateinit var scoresDb: ScoreDatabase
     lateinit var scoresLowerThanNewScore: Array<Score>
+
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_win_screen)
@@ -30,7 +30,7 @@ class WinScreen : AppCompatActivity() {
             paintFlags = paintFlags or Paint.UNDERLINE_TEXT_FLAG
         }
 
-        val high_scores: TextView = findViewById(R.id.text_high_scores)
+        val high_scores: TextView = findViewById(R.id.text_high_scores_win_screen)
         high_scores.underline()
 
         val difficulty = intent.getSerializableExtra("Difficulty") as Difficulty
@@ -45,9 +45,9 @@ class WinScreen : AppCompatActivity() {
         yourScore.text = "YOUR SCORE IS: ${score.score}"
 
         // prepare high scores board to be visible
-        val high_scores_board: LinearLayout = findViewById(R.id.high_scores_board)
+        val high_scores_board: LinearLayout = findViewById(R.id.high_scores_board_win_screen)
         var newHighScorePosition = -1
-        var highScoreTexts = arrayOf(topScore1, topScore2, topScore3, topScore4, topScore5)
+        val highScoreTexts = arrayOf(topScore1_win_screen, topScore2_win_screen, topScore3_win_screen, topScore4_win_screen, topScore5_win_screen)
 
         var numberOfScores = 0
         // check if the score is a new high score

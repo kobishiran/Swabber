@@ -4,14 +4,24 @@ import android.content.ComponentName
 import android.content.Context
 import android.content.Intent
 import android.content.ServiceConnection
-import androidx.appcompat.app.AppCompatActivity
 import android.os.Bundle
 import android.os.IBinder
-import kotlinx.android.synthetic.main.activity_difficulty_choice.*
-import kotlinx.android.synthetic.main.activity_home_screen.*
+import android.view.View
+import android.widget.AdapterView
+import android.widget.LinearLayout
+import android.widget.Spinner
+import android.widget.TextView
+import androidx.appcompat.app.AppCompatActivity
+import kotlinx.android.synthetic.main.activity_leaderboards.*
+import kotlinx.coroutines.GlobalScope
+import kotlinx.coroutines.async
+import kotlinx.coroutines.runBlocking
 
-class HomeScreen : AppCompatActivity() {
+class LeaderboardsActivity : AppCompatActivity(), AdapterView.OnItemSelectedListener {
     var toNewActivity = false  // a flag that is activated if transitioning to another activity
+    lateinit var scoresDb: ScoreDatabase
+    var difficultyToView = Difficulty.EASY.difficultyName
+    lateinit var highScoreTexts : Array<TextView>
 
     // Music service variables
     private var swabberThemeService: SwabberMusicService? = null  // nullable for the case that the service was destroyed and created again
@@ -23,12 +33,12 @@ class HomeScreen : AppCompatActivity() {
             val binder = service as SwabberMusicService.SwabberMusicBinder  // cast the IBinder to the SwabberMusicBinder Class
             swabberThemeService = binder.getService()  // get the service instance
             themeServiceBound = true
-            println("HOME SCREEN: BIND TO SERVICE")
+            println("LEADERBOARDS: BIND TO SERVICE")
             // initialize music button according to music mute state
             if (swabberThemeService != null) {
                 when (swabberThemeService?.musicMuted!!) {
-                    true -> buttonMusicHome.setImageResource(R.drawable.music_off)
-                    else -> buttonMusicHome.setImageResource(R.drawable.music_on)
+                    true -> buttonMusicLeaderboards.setImageResource(R.drawable.music_off)
+                    else -> buttonMusicLeaderboards.setImageResource(R.drawable.music_on)
                 }
             }
         }
@@ -36,16 +46,16 @@ class HomeScreen : AppCompatActivity() {
         override fun onServiceDisconnected(name: ComponentName?) {
             themeServiceBound = false
             swabberThemeService = null
-            println("HOME SCREEN: UNBIND FROM SERVICE")
+            println("LEADERBOARDS: UNBIND FROM SERVICE")
         }
     }
-
+    
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-        setContentView(R.layout.activity_home_screen)
+        setContentView(R.layout.activity_leaderboards)
 
         // Set music button listener
-        buttonMusicHome.setOnClickListener {
+        buttonMusicLeaderboards.setOnClickListener {
             if (themeServiceBound) {
                 if (!swabberThemeService?.musicMuted!!) {
                     muteMusicButton()
@@ -54,33 +64,24 @@ class HomeScreen : AppCompatActivity() {
                 }
             }
         }
+        
+        highScoreTexts = arrayOf(topScore1_leaderboards, topScore2_leaderboards, topScore3_leaderboards, topScore4_leaderboards, topScore5_leaderboards)
 
-        // Set Start button listener
-        buttonStart.setOnClickListener {
-//            val radioGroupMode: RadioGroup = findViewById(R.id.radioGroupMode)
-//            val radioID = radioGroupMode.checkedRadioButtonId // if not check return id = -1
-//            if (radioID != -1) {
-//                val selectedButton: RadioButton = findViewById(radioID)
-//
-//                when (selectedButton.text) {
-//                    getString(R.string.outbreak)    -> difficulty = Difficulty.EASY
-//                    getString(R.string.epidemic)    -> difficulty = Difficulty.MEDIUM
-//                    getString(R.string.pandemic)    -> difficulty = Difficulty.HARD
-//                    getString(R.string.custom_game) -> {
-//                        difficulty = Difficulty.EASY
-//                        Toast.makeText(this, "סבלנות חחח עוד לא פיתחנו...\n תשחק בינתיים ב OUTBREAK", Toast.LENGTH_SHORT).show(); //difficulty = Difficulty.CUSTOM_GAME
-//                    }
-//                }
-                toNewActivity = true
-                startActivity(Intent(this, DifficultyChoice::class.java))
-//            }
-//            else Toast.makeText(this, "Please select game mode", Toast.LENGTH_SHORT).show()
+        // Get database object. All database related actions must run in a coroutine
+        runBlocking {
+            scoresDb = GlobalScope.async { ScoreDatabase.getDatabase(applicationContext) }.await()
         }
 
-        buttonHighScores.setOnClickListener {
-            toNewActivity = true
-            startActivity(Intent(this, LeaderboardsActivity::class.java))
-        }
+        val high_scores_board: LinearLayout = findViewById(R.id.high_scores_board_leaderboards)
+
+        // show high scores title (visible)
+        high_scores_board.visibility = View.VISIBLE
+
+        // Display the leaderboard
+        displayHighScores(scoresDb, difficultyToView, highScoreTexts)
+
+        val difficultySpinner: Spinner = findViewById(R.id.spinnerDifficulty)
+        difficultySpinner.onItemSelectedListener = this
     }
 
     override fun onStart() {
@@ -88,15 +89,15 @@ class HomeScreen : AppCompatActivity() {
         toNewActivity = false  // reset to initial value
 
         if (swabberThemeService == null) {  // if the service instance is null, bind to the service again
-            println("HOME SCREEN ONSTART: SERVICE IS NULL")
+            println("Leaderboards SCREEN ONSTART: SERVICE IS NULL")
             // Start Background Music (bind to service)
             Intent(this, SwabberMusicService::class.java).putExtra("MusicFileName", "swabber_theme").also { intent ->
-                bindService(intent, themeConnection, Context.BIND_AUTO_CREATE)
+                bindService(intent, themeConnection, BIND_AUTO_CREATE)
             }
         }
         // if the music is paused, resume it (when returning from paused state). Make sure that the service instance is not null.
         if (swabberThemeService != null && !swabberThemeService?.isRunning!!) {
-            println("HOME SCREEN ONSTART: RESUMING MUSIC")
+            println("Leaderboards SCREEN ONSTART: RESUMING MUSIC")
             swabberThemeService!!.resumeMusic()
         }
     }
@@ -105,7 +106,7 @@ class HomeScreen : AppCompatActivity() {
         if (toNewActivity) {  // if going to another activity, unbind from the service
             themeServiceBound = false
             swabberThemeService = null
-            println("HOME SCREEN: UNBIND FROM SERVICE")
+            println("Leaderboards SCREEN: UNBIND FROM SERVICE")
             unbindService(themeConnection)
         }
         super.onStop()
@@ -121,21 +122,45 @@ class HomeScreen : AppCompatActivity() {
         if (swabberThemeService != null) {
             themeServiceBound = false
             swabberThemeService = null
-            println("HOME SCREEN: UNBIND FROM SERVICE")
+            println("Leaderboards SCREEN: UNBIND FROM SERVICE")
             unbindService(themeConnection)
         }
         super.onDestroy()
     }
 
+    override fun onBackPressed() {
+        toNewActivity = true
+        super.onBackPressed()
+    }
+
     private fun muteMusicButton() {
         // Update the music button to muted, and mute the music
-        buttonMusicHome.setImageResource(R.drawable.music_off)
+        buttonMusicLeaderboards.setImageResource(R.drawable.music_off)
         swabberThemeService?.muteMusic()
     }
 
     private fun unmuteMusicButton() {
         // Update the music button to unmuted, and unmute the music
-        buttonMusicHome.setImageResource(R.drawable.music_on)
+        buttonMusicLeaderboards.setImageResource(R.drawable.music_on)
         swabberThemeService?.unmuteMusic()
+    }
+
+
+    // Difficulty Spinner Functions:
+    override fun onItemSelected(parent: AdapterView<*>?, view: View?, position: Int, id: Long) {
+        val selectedDifficulty = parent?.getItemAtPosition(position).toString()
+        difficultyToView = when (selectedDifficulty) {
+            "Outbreak" -> Difficulty.EASY.difficultyName
+            "Epidemic" -> Difficulty.MEDIUM.difficultyName
+            else -> Difficulty.HARD.difficultyName
+        }
+
+        // update the leaderboard title to the chosen difficulty
+        text_high_scores_leaderboards.text = selectedDifficulty
+        // Display the leaderboard
+        displayHighScores(scoresDb, difficultyToView, highScoreTexts)
+    }
+
+    override fun onNothingSelected(parent: AdapterView<*>?) {
     }
 }
