@@ -4,11 +4,11 @@ import java.io.Serializable
 import kotlin.random.Random
 
 enum class Difficulty(
-    val difficultyName: String,
-    val boardHeight: Int, val boardWidth: Int, val initialSickNum: Int,
-    val dayLengthInMilli: Long, val infectionRadius: Int, val Pdeath: Float,
-    val Pinfect: Float, val maxDeadAllowed: Int, val maxWrongMasks: Int,
-    val BMTime: Float): Serializable {
+    var difficultyName: String,
+    var boardHeight: Int, var boardWidth: Int, var initialSickNum: Int,
+    var dayLengthInMilli: Long, var infectionRadius: Int, var Pdeath: Float,
+    var Pinfect: Float, var maxDeadAllowed: Int, var maxWrongMasks: Int,
+    var BMTime: Float): Serializable {
 
     EASY(
         difficultyName = "EASY",

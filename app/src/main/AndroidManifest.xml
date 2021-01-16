@@ -9,6 +9,8 @@
             android:roundIcon="@drawable/iconplaystore"
             android:supportsRtl="false"
             android:theme="@style/Theme.AppCompat.DayNight.NoActionBar">
+        <activity android:name=".CustomMode">
+        </activity>
         <activity android:name=".LeaderboardsActivity">
         </activity>
 

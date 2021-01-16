@@ -55,8 +55,10 @@ class DifficultyChoice : AppCompatActivity() {
             startGame(Difficulty.HARD)
         }
         buttonCustom.setOnClickListener {
-            Toast.makeText(this, "סבלנות חחח עוד לא פיתחנו...\n תשחק בינתיים ב OUTBREAK", Toast.LENGTH_SHORT).show(); //difficulty = Difficulty.CUSTOM_GAME
-            startGame(Difficulty.EASY)
+//            Toast.makeText(this, "סבלנות חחח עוד לא פיתחנו...\n תשחק בינתיים ב OUTBREAK", Toast.LENGTH_SHORT).show(); //difficulty = Difficulty.CUSTOM_GAME
+            toNewActivity = true
+            startActivity(Intent(this, CustomMode::class.java))
+            finish()
         }
 
         // Set music button listener
