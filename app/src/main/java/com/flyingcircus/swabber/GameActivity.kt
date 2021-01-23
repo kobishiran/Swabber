@@ -434,6 +434,9 @@ class GameActivity : AppCompatActivity() {
                 }
             }
         }
+
+        // Display a massage about how many people were infected during the night
+        println("Oh No! $infectedNum new people have been INFECTED!")
     }
 
     private fun infectNeighbors(row: Int, col: Int, r: Int): Int {

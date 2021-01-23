@@ -4,20 +4,15 @@ import android.content.ComponentName
 import android.content.Context
 import android.content.Intent
 import android.content.ServiceConnection
+import android.graphics.Color
 import androidx.appcompat.app.AppCompatActivity
 import android.os.Bundle
 import android.os.IBinder
-import android.view.View
-import android.widget.LinearLayout
-import android.widget.Spinner
-import android.widget.TextView
+import android.widget.*
 import kotlinx.android.synthetic.main.activity_custom_mode.*
-import kotlinx.android.synthetic.main.activity_difficulty_choice.*
-import kotlinx.android.synthetic.main.activity_leaderboards.*
-import kotlinx.coroutines.GlobalScope
-import kotlinx.coroutines.async
-import kotlinx.coroutines.runBlocking
-import kotlin.random.Random
+import java.lang.Math.min
+import kotlin.math.roundToInt
+import kotlin.math.sqrt
 
 class CustomMode : AppCompatActivity() {
     var toNewActivity = false  // a flag that is activated if transitioning to another activity
@@ -26,6 +21,15 @@ class CustomMode : AppCompatActivity() {
     // Music service variables
     private lateinit var swabberThemeService: SwabberMusicService  // nullable for the case that the service was destroyed and created again
     private var themeServiceBound: Boolean = false
+
+    // Text Validation Flags
+    private var heightOK = true
+    private var widthOK = true
+    private var initialSicktOK = true
+    private var infectionRadiusOK = true
+    private var infectionProbabilityOK = true
+    private var deathProbabilityOK = true
+    private var maxDeadOK = true
 
     // Create a service connection object
     private val themeConnection = object : ServiceConnection {
@@ -63,22 +67,134 @@ class CustomMode : AppCompatActivity() {
             }
         }
 
+        // Create Text Validators for min/max values
+        editBoardHeight.addTextChangedListener(object : TextValidator(editBoardHeight, applicationContext) {
+            override fun validate(editText: EditText, text: String) {
+                val inputVal : Int
+                if (text.isNotEmpty()) {
+                    inputVal = text.toInt()
+                } else {
+                    return
+                }
+                heightOK = isInRange(3, 20, inputVal)
+                when (heightOK) {
+                    false -> editBoardHeight.setTextColor(Color.RED)
+                    true -> editBoardHeight.setTextColor(Color.WHITE)
+                }
+            }
+        })
+        editBoardWidth.addTextChangedListener(object : TextValidator(editBoardWidth, applicationContext) {
+            override fun validate(editText: EditText, text: String) {
+                val inputVal : Int
+                if (text.isNotEmpty()) {
+                    inputVal = text.toInt()
+                } else {
+                    return
+                }
+                widthOK = isInRange(3, 20, inputVal)
+                when (widthOK) {
+                    false -> editBoardWidth.setTextColor(Color.RED)
+                    true -> editBoardWidth.setTextColor(Color.WHITE)
+                }
+
+            }
+        })
+        editInitialSick.addTextChangedListener(object : TextValidator(editInitialSick, applicationContext) {
+            override fun validate(editText: EditText, text: String) {
+                val inputVal : Int
+                if (text.isNotEmpty()) {
+                    inputVal = text.toInt()
+                } else {
+                    return
+                }
+                initialSicktOK = isInRange(3, (2 * sqrt(editBoardHeight.text.toString().toFloat() * editBoardWidth.text.toString().toFloat())).roundToInt(), inputVal)
+                when (initialSicktOK) {
+                    false -> editInitialSick.setTextColor(Color.RED)
+                    true -> editInitialSick.setTextColor(Color.WHITE)
+                }
+            }
+        })
+        editInfectionRadius.addTextChangedListener(object : TextValidator(editInfectionRadius, applicationContext) {
+            override fun validate(editText: EditText, text: String) {
+                val inputVal : Int
+                if (text.isNotEmpty()) {
+                    inputVal = text.toInt()
+                } else {
+                    return
+                }
+                infectionRadiusOK = isInRange(1, min(editBoardWidth.text.toString().toInt(), editBoardHeight.text.toString().toInt()), inputVal)
+                when (infectionRadiusOK) {
+                    false -> editInfectionRadius.setTextColor(Color.RED)
+                    true -> editInfectionRadius.setTextColor(Color.WHITE)
+                }
+            }
+        })
+        editInfectionProbability.addTextChangedListener(object : TextValidator(editInfectionProbability, applicationContext) {
+            override fun validate(editText: EditText, text: String) {
+                val inputVal : Float
+                if (text.isNotEmpty()) {
+                    inputVal = text.toFloat()
+                } else {
+                    return
+                }
+                infectionProbabilityOK = isInRange(0.01F, 0.8F, inputVal)
+                when (infectionProbabilityOK) {
+                    false -> editInfectionProbability.setTextColor(Color.RED)
+                    true -> editInfectionProbability.setTextColor(Color.WHITE)
+                }
+            }
+        })
+        editDeathProbability.addTextChangedListener(object : TextValidator(editDeathProbability, applicationContext) {
+            override fun validate(editText: EditText, text: String) {
+                val inputVal : Float
+                if (text.isNotEmpty()) {
+                    inputVal = text.toFloat()
+                } else {
+                    return
+                }
+                deathProbabilityOK = isInRange(0.01F, 0.8F, inputVal)
+                when (deathProbabilityOK) {
+                    false -> editDeathProbability.setTextColor(Color.RED)
+                    true -> editDeathProbability.setTextColor(Color.WHITE)
+                }
+            }
+        })
+        editMaxDeadAllowed.addTextChangedListener(object : TextValidator(editMaxDeadAllowed, applicationContext) {
+            override fun validate(editText: EditText, text: String) {
+                val inputVal : Int
+                if (text.isNotEmpty()) {
+                    inputVal = text.toInt()
+                } else {
+                    return
+                }
+                maxDeadOK = isInRange(1, (0.5 * (editBoardHeight.text.toString().toInt() * editBoardWidth.text.toString().toInt())).roundToInt(), inputVal)
+                when (maxDeadOK) {
+                    false -> editMaxDeadAllowed.setTextColor(Color.RED)
+                    true -> editMaxDeadAllowed.setTextColor(Color.WHITE)
+                }
+            }
+        })
+
         // Set play music button listener
         buttonPlayCustom.setOnClickListener {
-            val customDifficulty = Difficulty.EASY
-            customDifficulty.difficultyName = "CUSTOM"
-            customDifficulty.boardHeight =  editBoardHeight.text.toString().toInt()
-            customDifficulty.boardWidth = editBoardWidth.text.toString().toInt()
-            customDifficulty.initialSickNum = editInitialSick.text.toString().toInt()
-            customDifficulty.dayLengthInMilli = 20_000L
-            customDifficulty.infectionRadius = editInfectionRadius.text.toString().toInt()
-            customDifficulty.Pdeath = editDeathProbability.text.toString().toFloat()
-            customDifficulty.Pinfect = editInfectionProbability.text.toString().toFloat()
-            customDifficulty.maxDeadAllowed = editMaxDeadAllowed.text.toString().toInt()
-            customDifficulty.maxWrongMasks = 3
-            customDifficulty.BMTime = 20F
+            if (heightOK && widthOK && initialSicktOK && infectionRadiusOK && infectionProbabilityOK && deathProbabilityOK && maxDeadOK) {
+                val customDifficulty = Difficulty.EASY
+                customDifficulty.difficultyName = "CUSTOM"
+                customDifficulty.boardHeight =  editBoardHeight.text.toString().toInt()
+                customDifficulty.boardWidth = editBoardWidth.text.toString().toInt()
+                customDifficulty.initialSickNum = editInitialSick.text.toString().toInt()
+                customDifficulty.dayLengthInMilli = 20_000L
+                customDifficulty.infectionRadius = editInfectionRadius.text.toString().toInt()
+                customDifficulty.Pdeath = editDeathProbability.text.toString().toFloat()
+                customDifficulty.Pinfect = editInfectionProbability.text.toString().toFloat()
+                customDifficulty.maxDeadAllowed = editMaxDeadAllowed.text.toString().toInt()
+                customDifficulty.maxWrongMasks = 3
+                customDifficulty.BMTime = 20F
 
-            startGame(customDifficulty)
+                startGame(customDifficulty)
+            } else {
+                Toast.makeText(applicationContext, "Fix incorrect values to play!", Toast.LENGTH_SHORT).show()
+            }
         }
     }
 

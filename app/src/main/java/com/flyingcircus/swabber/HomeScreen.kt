@@ -16,7 +16,6 @@ class HomeScreen : AppCompatActivity() {
     // Music service variables
     private var swabberThemeService: SwabberMusicService? = null  // nullable for the case that the service was destroyed and created again
     private var themeServiceBound: Boolean = false
-
     // Create a service connection object
     private val themeConnection = object : ServiceConnection {
         override fun onServiceConnected(name: ComponentName?, service: IBinder?) {

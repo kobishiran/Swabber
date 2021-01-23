@@ -93,6 +93,9 @@ class SwabberMusicService : Service() {
                 stopSelf()
             }
         }
+//        else {  // if the music is muted, simply stop the service
+//            stopSelf()
+//        }
     }
 
     fun musicFadeIn() {

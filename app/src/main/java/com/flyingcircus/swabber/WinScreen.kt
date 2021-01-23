@@ -35,66 +35,72 @@ class WinScreen : AppCompatActivity() {
 
         val difficulty = intent.getSerializableExtra("Difficulty") as Difficulty
         val score = intent.getSerializableExtra("Score") as Score
-
-        // Get database object. All database related actions must run in a coroutine
-        runBlocking {
-            scoresDb = GlobalScope.async { ScoreDatabase.getDatabase(applicationContext) }.await()
-        }
-
-        // print your score
-        yourScore.text = "YOUR SCORE IS: ${score.score}"
-
-        // prepare high scores board to be visible
-        val high_scores_board: LinearLayout = findViewById(R.id.high_scores_board_win_screen)
-        var newHighScorePosition = -1
         val highScoreTexts = arrayOf(topScore1_win_screen, topScore2_win_screen, topScore3_win_screen, topScore4_win_screen, topScore5_win_screen)
 
-        var numberOfScores = 0
-        // check if the score is a new high score
-        runBlocking {
-            scoresLowerThanNewScore = GlobalScope.async { scoresDb.scoresDao().getScoresLowerThen(score.difficulty, score.score) }.await()
-            numberOfScores = GlobalScope.async { scoresDb.scoresDao().getTopScores(score.difficulty).size }.await()
-        }
+        if (difficulty.difficultyName != "CUSTOM") {
 
-        if (scoresLowerThanNewScore.size > 0 || numberOfScores < ScoresDao.topScoresNum) {
-            Toast.makeText(this, "New High Score!", Toast.LENGTH_SHORT).show()
+            // Get database object. All database related actions must run in a coroutine
+            runBlocking {
+                scoresDb = GlobalScope.async { ScoreDatabase.getDatabase(applicationContext) }.await()
+            }
 
-            val builder = AlertDialog.Builder(this)
-            val inflater = layoutInflater
-            builder.setTitle("Enter your name")
-            val dialogLayout = inflater.inflate(R.layout.alert_dialog_enter_name, null)
-            val editText = dialogLayout.findViewById<EditText>(R.id.editText)
-            builder.setView(dialogLayout)
-            builder.setPositiveButton("OK", DialogInterface.OnClickListener() { dialogInterface: DialogInterface, i: Int ->
-                score.player_name = editText.text.toString()
-                // Insert a new score to the DB
-                runBlocking {
-                    newHighScorePosition = insertScore(score, scoresDb)
-                    // TODO: if (newHighScoreFlag) displayNewHighScoreMassage
-                    highScoreTexts[newHighScorePosition - 1].setTextColor(Color.RED)
-                }
-            })
-            builder.setNegativeButton(
-                "Cancel",
-                DialogInterface.OnClickListener() { dialogInterface: DialogInterface, i: Int -> })
-            builder.setOnDismissListener(DialogInterface.OnDismissListener {
+            // print your score
+            yourScore.text = "YOUR SCORE IS: ${score.score}"
+
+            // prepare high scores board to be visible
+            val high_scores_board: LinearLayout = findViewById(R.id.high_scores_board_win_screen)
+            var newHighScorePosition = -1
+
+            var numberOfScores = 0
+            // check if the score is a new high score
+            runBlocking {
+                scoresLowerThanNewScore = GlobalScope.async { scoresDb.scoresDao().getScoresLowerThen(score.difficulty, score.score) }.await()
+                numberOfScores = GlobalScope.async { scoresDb.scoresDao().getTopScores(score.difficulty).size }.await()
+            }
+
+            if (scoresLowerThanNewScore.size > 0 || numberOfScores < ScoresDao.topScoresNum) {
+                Toast.makeText(this, "New High Score!", Toast.LENGTH_SHORT).show()
+
+                val builder = AlertDialog.Builder(this)
+                val inflater = layoutInflater
+                builder.setTitle("Enter your name")
+                val dialogLayout = inflater.inflate(R.layout.alert_dialog_enter_name, null)
+                val editText = dialogLayout.findViewById<EditText>(R.id.editText)
+                builder.setView(dialogLayout)
+                builder.setPositiveButton("OK", DialogInterface.OnClickListener() { dialogInterface: DialogInterface, i: Int ->
+                    score.player_name = editText.text.toString()
+                    // Insert a new score to the DB
+                    runBlocking {
+                        newHighScorePosition = insertScore(score, scoresDb)
+                        // TODO: if (newHighScoreFlag) displayNewHighScoreMassage
+                        highScoreTexts[newHighScorePosition - 1].setTextColor(Color.RED)
+                    }
+                })
+                builder.setNegativeButton(
+                    "Cancel",
+                    DialogInterface.OnClickListener() { dialogInterface: DialogInterface, i: Int -> })
+                builder.setOnDismissListener(DialogInterface.OnDismissListener {
+                    // show high scores title (visible)
+                    high_scores_board.visibility = View.VISIBLE
+
+                    // Display the leaderboard
+                    displayHighScores(scoresDb, score.difficulty, highScoreTexts)
+                    if (newHighScorePosition == -1) Toast.makeText(this, "Your result wasn't saved", Toast.LENGTH_SHORT).show()
+                })
+
+
+                builder.show()
+            } else {
                 // show high scores title (visible)
                 high_scores_board.visibility = View.VISIBLE
 
                 // Display the leaderboard
                 displayHighScores(scoresDb, score.difficulty, highScoreTexts)
-                if (newHighScorePosition == -1) Toast.makeText(this, "Your result wasn't saved", Toast.LENGTH_SHORT).show()
-            })
-
-
-            builder.show()
+                Toast.makeText(this, "Not a new high score... Better luck next time!", Toast.LENGTH_SHORT).show()
+            }
         } else {
-            // show high scores title (visible)
-            high_scores_board.visibility = View.VISIBLE
-
-            // Display the leaderboard
-            displayHighScores(scoresDb, score.difficulty, highScoreTexts)
-            Toast.makeText(this, "Not a new high score... Better luck next time!", Toast.LENGTH_SHORT).show()
+            // replace "your score" text with a nice massage
+            yourScore.text = "You're The Best!"
         }
 
 
